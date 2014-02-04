@@ -5,154 +5,54 @@
         <script src="js/d3.v3.min.js"></script>
         <script src="js/topojson.v1.min.js"></script>
         <script src="js/jquery-1.11.0.min.js"></script>
+        <script src="js/usmapvis.js"></script>
         <link href="css/style.css" rel="stylesheet" type="text/css">
     </head>
     <body>     
         <script>
-            var centroids = {};
-            
-            var width = 1000,
-                height = 600,
-                centered,
-                radius = Math.min(width, height) / 3;
-            
-            var projection = d3.geo.albersUsa()
-                .scale(1000)
-                .translate([width / 2, height / 2 + 20]);
-
-            var path = d3.geo.path()
-                .projection(projection);
-            
-            var svg = d3.select("body").append("svg")
-                .attr("width", width)
-                .attr("height", height);
-            
-            var divs = $("div.tooltip");
-
-            if (divs.length === 0) {
-                var div = d3.select("body")
-                    .append("div")
-                    .attr("class", "tooltip")
-                    .style("opacity", 0);
-            } else {
-                var div = d3.select("div.tooltip");
-            }
-            
-            var g = svg.append("g");
-            
-            var state_ids = [ 0 ];
-            var id_state_map = {
-                0: ""
-            };
-            
-            var id_name_map = {
-                0: null
-            };
-            
-            var short_name_id_map = {
-                0: null
-            };
-            
-            d3.tsv("data/us-state-names.tsv", function(error, names) {
-            
-                for (var i = 0; i < names.length; i++) {
-                    id_name_map[names[i].id] = names[i];
-                    short_name_id_map[names[i].code] = names[i].id;
-                }
-
-            });
-            
-            d3.json("data/us.json", function(error, us) {
-              function clicked(d) {
-              }
-            
-              g.append("g")
-                  .attr("id", "states")
-                .selectAll("path")
-                  .data(topojson.feature(us, us.objects.states).features)
-                .enter()
-                  .append("g")
-                  .attr("class","state-path")
-                  .attr("state", function(d) {
-                      return id_name_map[d.id].name;
-                  })
-                  .attr("id", function(d) {
-                      return id_name_map[d.id].code;
-                  });
-              
-              svg.selectAll('.state-path')
-                    .append("path")
-                    .attr("d", path)
-                    .attr("centroid", function(d) {
-                      centroids[id_name_map[d.id].code] = path.centroid(d);
-                    });
-                
-                console.log(centroids);
-            
-                g.append("path")
-                  .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
-                  .attr("id", "state-borders")
-                  .attr("d", path);
-            });
-
-            var colorScale = d3.scale.linear()
-                .range(['white', 'darkred'])
-                .domain([0, 25]);
-            
-            d3.tsv("data/SPPA82-12.tsv", function(data) {
-                
-                // groups all data by state
-                var groups = d3.nest()
-                    .key(function(d) {return d.fips_state})
-                    .entries(data);
-                
-                // compute percentage of jazz visitors
-                groups.forEach(function(s) {
-                    s.totals = d3.sum(s.values, function(d) { 
-                        if (d.jazz == "yes") { return 1; } 
-                        else { return 0; } 
-                    }) / s.values.length * 100
+            $(function () {
+                var map = usmapvis.createMap(d3.select("body"), {
+                    width: 600,
+                    height: 400
                 });
                 
-                // compute maximum percentage over all states and set a gradient color range
-                var maxperc = d3.max(groups, function(d) { return +d.totals;});
-                var colorScale = d3.scale.linear()
-                .range(['white', 'darkred'])
-                .domain([0, maxperc]);
+                map.createStatistic(
+                    "jazz", 
+                    function (group) {
+                        return d3.sum(group.values, function(d) { 
+                            if (d.jazz == "yes") { return 1; } 
+                            else { return 0; } 
+                        }) / group.values.length * 100
+                    }, 
+                    function (group, val) {
+                        return group.name + "<br/>" + val.toFixed(2) + "%";
+                    }
+                );
+                map.showStatistic("jazz");
                 
-                // color each state according to the percentage and activate tooltip on mouseover
-                groups.forEach(function(s) {
-                    var $state = $("#"+s.key.toUpperCase());
-                    
-                    // color the state according to the % of jazz listeners
-                    $state.css("fill", colorScale(s.totals));
-                    
-                    // shows tooltip on mouseover
-                    $state.on("mouseover", function() {
-                        var statecode = $(this).attr("id"),
-                            state = $(this).attr("state"),
-                            centroid = centroids[statecode],
-                            x = centroid[0],
-                            y = centroid[1];
-                        
-                        div.transition().duration(200).style("opacity", 1);
-                        div.html(state + "<br/>" + s.totals.toFixed(2) + "%")
-                            .style("left", x + "px")
-                            .style("top", y - 20 + "px");
-                    }).on("mouseout", function(d) {
-                        div.transition().duration(500).style("opacity", 0);
-                    });
-                    
-                    // State interaction with other graphs
-                    $state.on("click", (function (s) {
-                        return function(e) {
-                            console.log("clicked on", s.key);
+                
+                // example of other statistic, shows after 10 secs
+                setTimeout(function () {
+                    map.createStatistic(
+                        "novels", // just the key of ref
+                        function (group) {
+                            // could me min, max, sum, avg, med ... whatever
+                            return d3.sum(group.values, function(d) { 
+                                if (d.read_novels == "yes") { return 1; } 
+                                else { return 0; } 
+                            }) / group.values.length * 100
+                        }, 
+                        function (group, val) {
+                            return group.name + "<br/>" + val.toFixed(2) + "%";
                         }
-                    }(s)));
-                    
-                });
-                
+                    );
+                    map.showStatistic("novels");
+                }, 10000);
             });
+            
+            
+            
+            
         </script>
     </body>
 </html>
