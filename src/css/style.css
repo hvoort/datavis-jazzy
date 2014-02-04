@@ -1,3 +1,7 @@
+body {
+    background: lightyellow;
+}
+
 .background {
   fill: none;
   pointer-events: all;
@@ -7,11 +11,12 @@
   fill: red;
 }*/
 
-.state-path {
+#states .state-path {
+    cursor: pointer;
     fill: white;
 }
 
-.state-path:hover {
+#states .state-path:hover {
     fill: orange !important;
 }
 
