@@ -2,10 +2,10 @@
 <meta charset="utf-8">
 <html>
     <head>
-        <script src="d3.v3.min.js"></script>
-        <script src="topojson.v1.min.js"></script>
-        <script src="jquery-1.11.0.min.js"></script>
-        <link href="style.css" rel="stylesheet" type="text/css">
+        <script src="js/d3.v3.min.js"></script>
+        <script src="js/topojson.v1.min.js"></script>
+        <script src="js/jquery-1.11.0.min.js"></script>
+        <link href="css/style.css" rel="stylesheet" type="text/css">
     </head>
     <body>     
         <script>
@@ -53,16 +53,16 @@
                 0: null
             };
             
-            d3.tsv("us-state-names.tsv", function(error, names) {
+            d3.tsv("data/us-state-names.tsv", function(error, names) {
             
-            for (var i = 0; i < names.length; i++) {
-                id_name_map[names[i].id] = names[i];
-                short_name_id_map[names[i].code] = names[i].id;
-            }
+                for (var i = 0; i < names.length; i++) {
+                    id_name_map[names[i].id] = names[i];
+                    short_name_id_map[names[i].code] = names[i].id;
+                }
 
             });
             
-            d3.json("us.json", function(error, us) {
+            d3.json("data/us.json", function(error, us) {
               function clicked(d) {
               }
             
@@ -99,12 +99,12 @@
                 .range(['white', 'darkred'])
                 .domain([0, 25]);
             
-            d3.tsv("SPPA82-12.tsv", function(data) {
+            d3.tsv("data/SPPA82-12.tsv", function(data) {
                 
                 // groups all data by state
                 var groups = d3.nest()
-                .key(function(d) {return d.fips_state})
-                .entries(data);
+                    .key(function(d) {return d.fips_state})
+                    .entries(data);
                 
                 // compute percentage of jazz visitors
                 groups.forEach(function(s) {
@@ -122,16 +122,19 @@
                 
                 // color each state according to the percentage and activate tooltip on mouseover
                 groups.forEach(function(s) {
+                    var $state = $("#"+s.key.toUpperCase());
+                    
                     // color the state according to the % of jazz listeners
-                    $("#"+s.key.toUpperCase()).css("fill", colorScale(s.totals));
+                    $state.css("fill", colorScale(s.totals));
                     
                     // shows tooltip on mouseover
-                    $("#"+s.key.toUpperCase()).on("mouseover", function() {
-                        var statecode = $(this).attr("id");
-                        var state = $(this).attr("state");
-                        var centroid = centroids[statecode];
-                        var x = centroid[0];
-                        var y = centroid[1];
+                    $state.on("mouseover", function() {
+                        var statecode = $(this).attr("id"),
+                            state = $(this).attr("state"),
+                            centroid = centroids[statecode],
+                            x = centroid[0],
+                            y = centroid[1];
+                        
                         div.transition().duration(200).style("opacity", 1);
                         div.html(state + "<br/>" + s.totals.toFixed(2) + "%")
                             .style("left", x + "px")
@@ -139,6 +142,14 @@
                     }).on("mouseout", function(d) {
                         div.transition().duration(500).style("opacity", 0);
                     });
+                    
+                    // State interaction with other graphs
+                    $state.on("click", (function (s) {
+                        return function(e) {
+                            console.log("clicked on", s.key);
+                        }
+                    }(s)));
+                    
                 });
                 
             });
