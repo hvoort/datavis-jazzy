@@ -8,7 +8,10 @@
         <script src="js/usmapvis.js"></script>
         <link href="css/style.css" rel="stylesheet" type="text/css">
     </head>
-    <body>     
+    <body>
+        <div id="map1">
+            <h1>Map Visualisation</h1>
+        </div>
         <script>
             $(function () {
                 var map = usmapvis.createMap(d3.select("body"), {
@@ -16,23 +19,31 @@
                     height: 400
                 });
                 
-                map.createStatistic(
-                    "jazz", 
-                    function (group) {
-                        return d3.sum(group.values, function(d) { 
-                            if (d.jazz == "yes") { return 1; } 
-                            else { return 0; } 
+                var generic_sum = function (prop) {
+                   return function (group) {
+                       return d3.sum(group.values, function(d) { 
+                           if (d[prop] == "yes") { return 1; } 
+                           else { return 0; } 
                         }) / group.values.length * 100
-                    }, 
-                    function (group, val) {
-                        return group.name + "<br/>" + val.toFixed(2) + "%";
-                    }
-                );
-                map.showStatistic("jazz");
+                    };
+                };
                 
+                var perc_tooltip = function(group, val) {
+                        return group.name + "<br/>" + val.toFixed(2) + "%";
+                }
+                
+                var culturals = ["jazz", "classical", "opera", "musical", "play", "ballet", "dance", "artmuseum", "park", "books"]
+                
+                culturals.forEach(function(cultural) {
+                    map.createStatistic(
+                    cultural, 
+                    generic_sum(cultural));
+                });
+                                  
+                map.showStatistic(["classical"], perc_tooltip);
                 
                 // example of other statistic, shows after 10 secs
-                setTimeout(function () {
+                /*setTimeout(function () {
                     map.createStatistic(
                         "novels", // just the key of ref
                         function (group) {
@@ -47,7 +58,7 @@
                         }
                     );
                     map.showStatistic("novels");
-                }, 10000);
+                }, 10000);*/
             });
             
             

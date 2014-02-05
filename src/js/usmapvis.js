@@ -44,6 +44,9 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                 
                 data_dfd = $.Deferred();
             
+            console.log(target);
+            console.log(svg);
+            
             var initialize = function () {
                     // get us state names and codes
                     d3.tsv("data/us-state-names.tsv", function(error, names) {
@@ -55,7 +58,7 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                 
                     createUsMap();
                 
-                    d3.tsv("data/SPPA82-12.tsv", function(data) {
+                    d3.tsv("data/SPPA82-12-filtered.tsv", function(data) {
                         // groups all data by state
                         var groups = d3.nest()
                             .key(function(d) {return d.fips_state})
@@ -109,8 +112,8 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                     });
                 },
                 
-                createStatistic = function (key, statFunc, toStringFunc) {
-                    if (typeof statFunc !== "function" || typeof toStringFunc !== "function") return console.error("No functions given");
+                createStatistic = function (key, statFunc) {
+                    if (typeof statFunc !== "function") return console.error("No statistics function given");
                     if (visualisations[key]) return console.warn("visualisation exists"); 
                 
                     data_dfd.done(function (groups) {
@@ -121,19 +124,30 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                     });
                 
                     visualisations[key] = {
-                        statFunc: statFunc,
-                        toStringFunc: toStringFunc
+                        statFunc: statFunc
                     };
                 },
                 
-                showStatistic = function (key) {
-                    if (!visualisations[key]) return console.error("uknown visualization"); 
+                showStatistic = function (keys, toStringFunc) {
+                    if (typeof toStringFunc !== "function") return console.error("no toString function given for tooltip");
+                    keys.forEach(function (key) {
+                        if (!visualisations[key]) return console.error("unknown visualization " + key);
+                    });
                 
                     data_dfd.done(function (groups) {
                         
+                        groups.forEach(function(group) {
+                            var sum = 0;
+                            keys.forEach(function (key) {
+                                sum += group.stats[key];
+                            });
+                            
+                            group.mergedstats = sum/keys.length;
+                        });
+                        
                         // compute maximum percentage over all states and set a gradient color range
-                        var min = d3.min(groups, function(group) { return +group.stats[key]; }), 
-                            max = d3.max(groups, function(group) { return +group.stats[key]; }),
+                        var min = d3.min(groups, function(group) { return +group.mergedstats; }), 
+                            max = d3.max(groups, function(group) { return +group.mergedstats; }),
                             colorScale = d3.scale.linear()
                                 .range(['white', 'darkred'])
                                 .domain([min, max]);
@@ -146,17 +160,17 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                             $state.unbind();
                             
                             // color the state according to the stats
-                            $state.css("fill", colorScale(group.stats[key]));
+                            $state.css("fill", colorScale(group.mergedstats));
                             
                             // shows tooltip on mouseover
                             $state.on("mouseover", function() {
                                 var statecode = $(this).attr("id"),
                                     state = $(this).attr("state"),
                                     centroid = centroids[statecode],
-                                    x = centroid[0],
-                                    y = centroid[1];
+                                    x = centroid[0]; // + target.position().left;
+                                    y = centroid[1]; //+ target.position().top;
                  
-                                tooltip.html(visualisations[key].toStringFunc(group, group.stats[key]))
+                                tooltip.html(toStringFunc(group, group.mergedstats))
                                     .style("left", x + "px")
                                     .style("top", y - 20 + "px");
                                 tooltip.transition().duration(200).style("opacity", 1);
