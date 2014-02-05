@@ -155,39 +155,42 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                     
                    
                     groups.forEach(function(group) {
-                        var $state = $("#"+group.key.toUpperCase());
-                        
-                        // unbind all previous events
-                        $state.unbind();
-                        
-                        // color the state according to the stats
-                        $state.css("fill", colorScale(group.mergedstats));
-                        
-                        // shows tooltip on mouseover
-                        $state.on("mouseover", function() {
-                            var statecode = $(this).attr("id"),
-                                state = $(this).attr("state"),
-                                centroid = centroids[statecode],
-                                x = centroid[0]; // + target.position().left;
-                                y = centroid[1]; //+ target.position().top;
-             
-                            tooltip.html(toStringFunc(group, group.mergedstats))
-                                .style("left", x + "px")
-                                .style("top", y - 20 + "px");
-                            tooltip.transition().duration(200).style("opacity", 1);
-                        }).on("mouseout", function(d) {
-                            tooltip.transition().duration(500).style("opacity", 0);
+                            var $state = $("#"+group.key.toUpperCase()),
+                                d3state = d3.select("#"+group.key.toUpperCase());
+                            
+                            // unbind all previous events
+                            $state.unbind();
+                            
+                            // color the state according to the stats
+                            d3state
+                                .transition()
+                                .duration(400)
+                                .style("fill", colorScale(group.mergedstats));
+                            
+                            // shows tooltip on mouseover
+                            $state.on("mouseover", function() {
+                                var statecode = $(this).attr("id"),
+                                    state = $(this).attr("state"),
+                                    centroid = centroids[statecode],
+                                    x = centroid[0]; // + target.position().left;
+                                    y = centroid[1]; //+ target.position().top;
+                 
+                                tooltip.html(toStringFunc(group, group.mergedstats))
+                                    .style("left", x + "px")
+                                    .style("top", y - 20 + "px");
+                                tooltip.transition().duration(200).style("opacity", 1);
+                            }).on("mouseout", function(d) {
+                                tooltip.transition().duration(500).style("opacity", 0);
+                            });
+                            
+                            // State interaction with other graphs
+                            $state.on("click", (function (s) {
+                                return function(e) {
+                                    console.log("clicked on", s.key);
+                                }
+                            }(group)));
                         });
-                        
-                        // State interaction with other graphs
-                        $state.on("click", (function (s) {
-                            return function(e) {
-                                console.log("clicked on", s.key);
-                            }
-                        }(group)));
-                        
-                    });
-                    });                    
+                    });                   
                 };
             
             // Initialize the map and data

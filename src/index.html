@@ -36,13 +36,9 @@
                 var culturalcbs = [];
                 
                 selectedCbs = function () { 
-                    var res = [];
-                    for(var i = 0; i < culturalcbs.length; i++) {
-                        if(culturalcbs[i][0].checked) {
-                            res.push(culturals[i]);
-                        }
-                    }
-                    return res;
+                    return $("#map1 input[id^='cb']:checked").map(function(){
+                      return $(this).val();
+                    }).get();
                 }
                 
                 showStatistics = function() {
@@ -64,9 +60,11 @@
                         });
                     
                     culturalcbs.push(cb);
-                    
-                    $("#map1").append(cb);
-                    $("#map1").append(cultural + "<br />");
+                    $("<label>")
+                        .attr("for", "cb" + cultural)
+                        .append(cb)
+                        .append("Select " + cultural)
+                        .appendTo($("#map1"));
                 });
             });
             
