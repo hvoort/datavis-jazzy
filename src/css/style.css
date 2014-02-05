@@ -47,3 +47,9 @@ div.tooltip {
   top: 0;
   left: 0;
 }
+
+label {
+    float: left;
+    clear: both;
+    cursor: pointer;
+}
