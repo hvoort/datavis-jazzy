@@ -115,26 +115,35 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                         
                         // aggregates the percentages for the selected types of cultural activities and selected years
                         groups.forEach(function(group) {
-                            var sum = 0;
+                            var sum = 0, missingsum = 0;
                             group.values.forEach(function(year) {
+                                // calculate for given years
                                 if(years.indexOf(year.key) != -1) {
                                     keys.forEach(function (key) {
                                         sum += year.stats[key];
                                     });
                                     sum = sum/keys.length;
+                                } 
+                                // calculate excluded years (for range)
+                                else {
+                                    keys.forEach(function (key) {
+                                        missingsum += year.stats[key];
+                                    });
+                                    missingsum = missingsum/keys.length;
                                 }
                             });
                             group.mergedstats = sum/years.length;
+                            group.allstats = (sum + missingsum)/group.values.length;
                         });
                         
                         // compute maximum percentage over all states and set a gradient color range
-                        var min = d3.min(groups, function(group) { return +group.mergedstats; }), 
-                            max = d3.max(groups, function(group) { return +group.mergedstats; }),
+                        var min = d3.min(groups, function(group) { return +group.allstats; }), 
+                            max = d3.max(groups, function(group) { return +group.allstats; }),
                             colorScale = d3.scale.linear()
                                 .range(['white', 'darkred'])
                                 .domain([min, max]);
                         
-                       
+                       console.log(min, max);
                         groups.forEach(function(group) {
                             var $state = $(target.node()).find("g.state-path[code='"+group.key.toUpperCase()+"']"),
                                 d3state = target.select("g.state-path[code='"+group.key.toUpperCase()+"']");
