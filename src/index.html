@@ -14,7 +14,7 @@
         </div>
         <script>
             $(function () {
-                var map = usmapvis.createMap(d3.select("body"), {
+                var map = usmapvis.createMap(d3.select("#map1"), {
                     width: 600,
                     height: 400
                 });
@@ -33,36 +33,42 @@
                 }
                 
                 var culturals = ["jazz", "classical", "opera", "musical", "play", "ballet", "dance", "artmuseum", "park", "books"]
+                var culturalcbs = [];
+                
+                selectedCbs = function () { 
+                    var res = [];
+                    for(var i = 0; i < culturalcbs.length; i++) {
+                        if(culturalcbs[i][0].checked) {
+                            res.push(culturals[i]);
+                        }
+                    }
+                    return res;
+                }
+                
+                showStatistics = function() {
+                    map.showStatistic(selectedCbs(), perc_tooltip);
+                }
+                
+                $("#map1").append("<br />");
                 
                 culturals.forEach(function(cultural) {
                     map.createStatistic(
                     cultural, 
                     generic_sum(cultural));
+                    
+                    var cb = $(document.createElement('input')).attr({
+                        id: 'cb' + cultural,
+                        value: cultural,
+                        type: 'checkbox',
+                        onclick: 'showStatistics()'
+                        });
+                    
+                    culturalcbs.push(cb);
+                    
+                    $("#map1").append(cb);
+                    $("#map1").append("Select " + cultural + "<br />");
                 });
-                                  
-                map.showStatistic(["classical"], perc_tooltip);
-                
-                // example of other statistic, shows after 10 secs
-                /*setTimeout(function () {
-                    map.createStatistic(
-                        "novels", // just the key of ref
-                        function (group) {
-                            // could me min, max, sum, avg, med ... whatever
-                            return d3.sum(group.values, function(d) { 
-                                if (d.read_novels == "yes") { return 1; } 
-                                else { return 0; } 
-                            }) / group.values.length * 100
-                        }, 
-                        function (group, val) {
-                            return group.name + "<br/>" + val.toFixed(2) + "%";
-                        }
-                    );
-                    map.showStatistic("novels");
-                }, 10000);*/
             });
-            
-            
-            
             
         </script>
     </body>
