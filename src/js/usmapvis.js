@@ -7,6 +7,38 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
         height: 600
     },    
     /*
+    *   Shared Data
+    */
+    id_name_map = { 0: null },                
+    short_name_id_map = { 0: null },
+    data_dfd = $.Deferred(),
+        
+    init_data = (function () {
+        // Get us state names and codes
+        d3.tsv("data/us-state-names.tsv", function(error, names) {
+            names.forEach(function (name) {
+                id_name_map[name.id] = name;
+                short_name_id_map[name.code] = name.id;
+            });
+        }); 
+        
+        // Get raw data
+        d3.tsv("data/SPPA82-12-filtered.tsv", function(data) {
+            // groups all data by state
+            var groups = d3.nest()
+                .key(function(d) {return d.fips_state})
+                .key(function(d) {return d.year})
+                .entries(data);
+            
+            // Set groupname
+            groups.forEach(function (group, i) {
+                group.name = id_name_map[short_name_id_map[group.key.toUpperCase()]].name;
+            });
+            
+            data_dfd.resolve(groups);
+        });
+    }()),
+    /*
     * Creates Us Map for visualisation
     */
     createMap = function (target, opts) {
@@ -14,6 +46,8 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
             // Set options
             opts = $.extend({}, defaults, opts);
             opts.radius = Math.min(opts.width, opts.height) / 3;
+            
+            if (target === undefined || !(target instanceof d3.selection)) return console.error("no d3 target given");  
             
             // declare variables
             var visualisations = {},
@@ -33,43 +67,13 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                     .attr("height", opts.height),
                 g = svg.append("g"),
             
-                tooltip = d3.select("body")
+                tooltip = target
                     .append("div")
                     .attr("class", "tooltip")
-                    .style("opacity", 0),
+                    .style("opacity", 0);
             
-                // Get us state data       
-                id_name_map = { 0: null },                
-                short_name_id_map = { 0: null },
-                
-                data_dfd = $.Deferred();
-            
-            var initialize = function () {
-                    // get us state names and codes
-                    d3.tsv("data/us-state-names.tsv", function(error, names) {
-                        names.forEach(function (name) {
-                            id_name_map[name.id] = name;
-                            short_name_id_map[name.code] = name.id;
-                        });
-                    });    
-                
-                    createUsMap();
-                
-                    d3.tsv("data/SPPA82-12-filtered.tsv", function(data) {
-                        // groups all data by state
-                        var groups = d3.nest()
-                            .key(function(d) {return d.fips_state})
-                            .key(function(d) {return d.year})
-                            .entries(data);
-                        
-                        // Set groupname
-                        groups.forEach(function (group, i) {
-                            group.name = id_name_map[short_name_id_map[group.key.toUpperCase()]].name;
-                        });
-                        
-                        data_dfd.resolve(groups);
-                    });
-                    
+            var initialize = function () {   
+                    createUsMap();                    
                 },
                 
                 createUsMap = function () {
@@ -79,7 +83,7 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                         }
                         
                         g.append("g")
-                            .attr("id", "states")
+                            .attr("class", "states")
                             .selectAll("path")
                             .data(topojson.feature(us, us.objects.states).features)
                             .enter()
@@ -88,7 +92,7 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                             .attr("state", function(d) {
                                 return id_name_map[d.id].name;
                             })
-                            .attr("id", function(d) {
+                            .attr("code", function(d) {
                                 return id_name_map[d.id].code;
                             });
                         
@@ -101,7 +105,7 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                         
                         g.append("path")
                             .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
-                            .attr("id", "state-borders")
+                            .attr("class", "state-borders")
                             .attr("d", path);
                     });
                 },
@@ -155,8 +159,8 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                     
                    
                     groups.forEach(function(group) {
-                            var $state = $("#"+group.key.toUpperCase()),
-                                d3state = d3.select("#"+group.key.toUpperCase());
+                            var $state = $(target.node()).find("g.state-path[code='"+group.key.toUpperCase()+"']"),
+                                d3state = target.select("g.state-path[code='"+group.key.toUpperCase()+"']");
                             
                             // unbind all previous events
                             $state.unbind();
@@ -169,7 +173,7 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                             
                             // shows tooltip on mouseover
                             $state.on("mouseover", function() {
-                                var statecode = $(this).attr("id"),
+                                var statecode = $(this).attr("code"),
                                     state = $(this).attr("state"),
                                     centroid = centroids[statecode],
                                     x = centroid[0]; // + target.position().left;

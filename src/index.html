@@ -9,48 +9,62 @@
         <link href="css/style.css" rel="stylesheet" type="text/css">
     </head>
     <body>
-        <div id="map1">
-            <h1>Map Visualisation</h1>
+        <div id="map1" class="map">
+            <h1>2002</h1>
         </div>
+        <div id="map2" class="map">
+            <h1>2008</h1>
+        </div>
+        <div id="map3" class="map">
+            <h1>2012</h1>
+        </div>
+        <div id="mapfilters" class="mapfilters"></div>
         <script>
             $(function () {
-                var map = usmapvis.createMap(d3.select("#map1"), {
-                    width: 600,
-                    height: 400
-                });
-                
-                var generic_sum = function (prop) {
-                   return function (group) {
-                       return d3.sum(group.values, function(d) { 
-                           if (d[prop] == "yes") { return 1; } 
-                           else { return 0; } 
-                        }) / group.values.length * 100
-                    };
-                };
-                
-                var perc_tooltip = function(group, val) {
+                var map1 = usmapvis.createMap(d3.select("#map1"), {
+                        width: 400,
+                        height: 300
+                    }),
+                    map2 = usmapvis.createMap(d3.select("#map2"), {
+                        width: 400,
+                        height: 300
+                    }),
+                    map3 = usmapvis.createMap(d3.select("#map3"), {
+                        width: 400,
+                        height: 300
+                    }),
+                    
+                    generic_sum = function (prop) {
+                       return function (group) {
+                           return d3.sum(group.values, function(d) { 
+                               if (d[prop] == "yes") { return 1; } 
+                               else { return 0; } 
+                            }) / group.values.length * 100
+                        };
+                    },
+                    perc_tooltip = function(group, val) {
                         return group.name + "<br/>" + val.toFixed(2) + "%";
-                }
+                    };
                 
                 var culturals = ["jazz", "classical", "opera", "musical", "play", "ballet", "dance", "artmuseum", "park", "books"]
                 var culturalcbs = [];
                 
                 selectedCbs = function () { 
-                    return $("#map1 input[id^='cb']:checked").map(function(){
+                    return $("#mapfilters input[id^='cb']:checked").map(function(){
                       return $(this).val();
                     }).get();
                 }
                 
                 showStatistics = function() {
-                    map.showStatistic(selectedCbs(), ["2002", "2008", "2012"], perc_tooltip);
+                    map1.showStatistic(selectedCbs(), ["2002"], perc_tooltip);
+                    map2.showStatistic(selectedCbs(), ["2008"], perc_tooltip);
+                    map3.showStatistic(selectedCbs(), ["2012"], perc_tooltip);
                 }
                 
-                $("#map1").append("<br />");
-                
                 culturals.forEach(function(cultural) {
-                    map.createStatistic(
-                    cultural, 
-                    generic_sum(cultural));
+                    map1.createStatistic(cultural, generic_sum(cultural));
+                    map2.createStatistic(cultural, generic_sum(cultural));
+                    map3.createStatistic(cultural, generic_sum(cultural));
                     
                     var cb = $(document.createElement('input')).attr({
                         id: 'cb' + cultural,
@@ -64,7 +78,7 @@
                         .attr("for", "cb" + cultural)
                         .append(cb)
                         .append("Select " + cultural)
-                        .appendTo($("#map1"));
+                        .appendTo($("#mapfilters"));
                 });
             });
             
