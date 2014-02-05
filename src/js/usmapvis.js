@@ -50,9 +50,7 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
             if (target === undefined || !(target instanceof d3.selection)) return console.error("no d3 target given");  
             
             // declare variables
-            var visualisations = {},
-            
-                centroids = {},
+            var centroids = {},
                 centered,
             
                 projection = d3.geo.albersUsa()
@@ -110,55 +108,34 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                     });
                 },
                 
-                createStatistic = function (key, statFunc) {
-                    if (typeof statFunc !== "function") return console.error("No statistics function given");
-                    if (visualisations[key]) return console.warn("visualisation exists"); 
-                
-                    data_dfd.done(function (groups) {
-                        groups.forEach( function(state) {
-                            state.values.forEach(function(year) {
-                                year.stats = year.stats || {};
-                                year.stats[key] = statFunc(year);
-                            });
-                        });
-                    });
-                
-                    visualisations[key] = {
-                        statFunc: statFunc
-                    };
-                },
-                
                 showStatistic = function (keys, years, toStringFunc) {
                     if (typeof toStringFunc !== "function") return console.error("no toString function given for tooltip");
-                    keys.forEach(function (key) {
-                        if (!visualisations[key]) return console.error("unknown visualization " + key);
-                    });
                 
                     data_dfd.done(function (groups) {
                         
-                    // aggregates the percentages for the selected types of cultural activities and selected years
-                    groups.forEach(function(group) {
-                        var sum = 0;
-                        group.values.forEach(function(year) {
-                            if(years.indexOf(year.key) != -1) {
-                                keys.forEach(function (key) {
-                                    sum += year.stats[key];
-                                });
-                                sum = sum/keys.length;
-                            }
+                        // aggregates the percentages for the selected types of cultural activities and selected years
+                        groups.forEach(function(group) {
+                            var sum = 0;
+                            group.values.forEach(function(year) {
+                                if(years.indexOf(year.key) != -1) {
+                                    keys.forEach(function (key) {
+                                        sum += year.stats[key];
+                                    });
+                                    sum = sum/keys.length;
+                                }
+                            });
+                            group.mergedstats = sum/years.length;
                         });
-                        group.mergedstats = sum/years.length;
-                    });
-                    
-                    // compute maximum percentage over all states and set a gradient color range
-                    var min = d3.min(groups, function(group) { return +group.mergedstats; }), 
-                        max = d3.max(groups, function(group) { return +group.mergedstats; }),
-                        colorScale = d3.scale.linear()
-                            .range(['white', 'darkred'])
-                            .domain([min, max]);
-                    
-                   
-                    groups.forEach(function(group) {
+                        
+                        // compute maximum percentage over all states and set a gradient color range
+                        var min = d3.min(groups, function(group) { return +group.mergedstats; }), 
+                            max = d3.max(groups, function(group) { return +group.mergedstats; }),
+                            colorScale = d3.scale.linear()
+                                .range(['white', 'darkred'])
+                                .domain([min, max]);
+                        
+                       
+                        groups.forEach(function(group) {
                             var $state = $(target.node()).find("g.state-path[code='"+group.key.toUpperCase()+"']"),
                                 d3state = target.select("g.state-path[code='"+group.key.toUpperCase()+"']");
                             
@@ -204,13 +181,26 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                 getStates: function () {
                     
                 },
-                createStatistic: createStatistic,
                 showStatistic: showStatistic
             };
         }(target, opts));
+    },
+        
+    createStatistic = function (key, statFunc) {
+        if (typeof statFunc !== "function") return console.error("No statistics function given");
+    
+        data_dfd.done(function (groups) {
+            groups.forEach( function(state) {
+                state.values.forEach(function(year) {
+                    year.stats = year.stats || {};
+                    year.stats[key] = statFunc(year);
+                });
+            });
+        });
     };
     
     return {
-        createMap: createMap
+        createMap: createMap,
+        createStatistic: createStatistic
     };    
 }(jQuery, d3));

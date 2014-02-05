@@ -62,9 +62,7 @@
                 }
                 
                 culturals.forEach(function(cultural) {
-                    map1.createStatistic(cultural, generic_sum(cultural));
-                    map2.createStatistic(cultural, generic_sum(cultural));
-                    map3.createStatistic(cultural, generic_sum(cultural));
+                    usmapvis.createStatistic(cultural, generic_sum(cultural));
                     
                     var cb = $(document.createElement('input')).attr({
                         id: 'cb' + cultural,
