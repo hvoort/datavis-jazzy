@@ -154,13 +154,17 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                         
                        
                         groups.forEach(function(group) {
-                            var $state = $("#"+group.key.toUpperCase());
+                            var $state = $("#"+group.key.toUpperCase()),
+                                d3state = d3.select("#"+group.key.toUpperCase());
                             
                             // unbind all previous events
                             $state.unbind();
                             
                             // color the state according to the stats
-                            $state.css("fill", colorScale(group.mergedstats));
+                            d3state
+                                .transition()
+                                .duration(400)
+                                .style("fill", colorScale(group.mergedstats));
                             
                             // shows tooltip on mouseover
                             $state.on("mouseover", function() {
