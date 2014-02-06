@@ -143,7 +143,6 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                                 .range(['white', 'darkred'])
                                 .domain([min, max]);
                         
-                       console.log(min, max);
                         groups.forEach(function(group) {
                             var $state = $(target.node()).find("g.state-path[code='"+group.key.toUpperCase()+"']"),
                                 d3state = target.select("g.state-path[code='"+group.key.toUpperCase()+"']");
