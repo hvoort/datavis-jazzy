@@ -157,51 +157,62 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                                 .domain([min, max]);
                         
                         groups.forEach(function(group) {
-                            var $state = $(target.node()).find("g.state-path[code='"+group.key.toUpperCase()+"']"),
-                                d3state = target.select("g.state-path[code='"+group.key.toUpperCase()+"']");
+                            var statecode = group.key.toUpperCase(),
+                                jq_self = $(target.node()).find("g.state-path[code='"+statecode+"']"),
+                                d3_self = target.select("g.state-path[code='"+statecode+"']"),
+                                jq_tooltip = $(tooltip.node()),
+                                d3_tooltip = tooltip;
+                            
                             
                             // unbind all previous events
-                            $state.unbind();
+                            jq_self.unbind();
                             
                             // color the state according to the stats
-                            d3state
+                            d3_self
                                 .transition()
                                 .duration(400)
                                 .style("fill", colorScale(group[mapid].mergedstats));
                             
                             hoverstatesfuncs[group.key.toUpperCase()] = function (show) {
-                                var show = (show === undefined ? true : show),
-                                    statecode = group.key.toUpperCase(),
-                                    self = $(target.node()).find("g.state-path[code='"+statecode+"']");
+                                var show = (show === undefined ? true : show);
                                 
                                 if (show === true) {
                                     var centroid = centroids[statecode],
                                         x = centroid[0], // + target.position().left;
                                         y = centroid[1]; //+ target.position().top;
                                     
-                                    self.data("fill", self.css("fill")).css("fill", "orange");
+                                    // save color and fill with active color
+                                    jq_self.data("fill", jq_self.css("fill"));
+                                    d3_self.transition().duration(200).style("fill", "orange");
                      
-                                    tooltip.html(toStringFunc(group, group[mapid].mergedstats))
-                                        .style("left", x + "px")
-                                        .style("top", y - 20 + "px");
-                                    tooltip.transition().duration(200).style("opacity", 1);
+                                    d3_tooltip.html(toStringFunc(group, group[mapid].mergedstats));
+                                    var position = {
+                                        "top": jq_self.position().top - jq_tooltip.outerHeight() + "px",
+                                        "left": jq_self.position().left + jq_self[0].getBoundingClientRect().width + "px"
+                                    };
+                                    if (parseFloat(jq_tooltip.css("opacity")) > 0)
+                                        jq_tooltip.stop().animate(position, 200);    
+                                    else 
+                                        jq_tooltip.css(position);
+                                    
+                                    d3_tooltip.transition().duration(200).style("opacity", 1);
                                 } else {
-                                    self.css("fill", self.data("fill"));
-                                    tooltip.transition().duration(500).style("opacity", 0);
+                                    d3_self.transition().duration(200).style("fill", jq_self.data("fill"));
+                                    d3_tooltip.transition().duration(500).style("opacity", 0);
                                 }                                
                             }
                             
                             // shows tooltip on mouseover
-                            $state.on("mouseover", function() {
-                                hoverState(group.key.toUpperCase());
+                            jq_self.on("mouseover", function() {
+                                hoverState(statecode);
                             }).on("mouseout", function(d) {
-                                hoverState(group.key.toUpperCase(), false);
+                                hoverState(statecode, false);
                             });
                             
                             // State interaction with other graphs
-                            $state.on("click", (function (s) {
+                            jq_self.on("click", (function (group) {
                                 return function(e) {
-                                    console.log("clicked on", s.key);
+                                    console.log("clicked on", group.key);
                                 }
                             }(group)));
                         });
