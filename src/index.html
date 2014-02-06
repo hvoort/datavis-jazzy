@@ -56,9 +56,10 @@
                 }
                 
                 showStatistics = function() {
-                    map1.showStatistic(selectedCbs(), ["2002"], perc_tooltip);
-                    map2.showStatistic(selectedCbs(), ["2008"], perc_tooltip);
-                    map3.showStatistic(selectedCbs(), ["2012"], perc_tooltip);
+                    var selected = selectedCbs();
+                    map1.showStatistic(selected, ["2002"], perc_tooltip);
+                    map2.showStatistic(selected, ["2008"], perc_tooltip);
+                    map3.showStatistic(selected, ["2012"], perc_tooltip);
                 }
                 
                 culturals.forEach(function(cultural) {
@@ -78,6 +79,10 @@
                         .append("Select " + cultural)
                         .appendTo($("#mapfilters"));
                 });
+                
+                // Default show
+                $("#mapfilters input[id^='cb']:eq(0)").attr("checked", true);
+                showStatistics();
             });
             
         </script>
