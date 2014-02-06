@@ -38,6 +38,13 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
             data_dfd.resolve(groups);
         });
     }()),
+        
+    unique = (function () {
+        var count = 1;
+        return function () {
+            return count++;  
+        };
+    }()),
     /*
     * Creates Us Map for visualisation
     */
@@ -47,10 +54,12 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
             opts = $.extend({}, defaults, opts);
             opts.radius = Math.min(opts.width, opts.height) / 3;
             
-            if (target === undefined || !(target instanceof d3.selection)) return console.error("no d3 target given");  
+            if (target === undefined || !(target instanceof d3.selection)) return console.error("no d3 target given");
             
             // declare variables
-            var centroids = {},
+            var mapid = unique(),
+            
+                centroids = {},
                 centered,
             
                 projection = d3.geo.albersUsa()
@@ -132,13 +141,14 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                                     missingsum = missingsum/keys.length;
                                 }
                             });
-                            group.mergedstats = sum/years.length;
-                            group.allstats = (sum + missingsum)/group.values.length;
+                            group[mapid] = group[mapid] || {};
+                            group[mapid].mergedstats = sum/years.length;
+                            group[mapid].allstats = (sum + missingsum)/group.values.length;
                         });
                         
                         // compute maximum percentage over all states and set a gradient color range
-                        var min = d3.min(groups, function(group) { return +group.allstats; }), 
-                            max = d3.max(groups, function(group) { return +group.allstats; }),
+                        var min = d3.min(groups, function(group) { return +group[mapid].allstats; }), 
+                            max = d3.max(groups, function(group) { return +group[mapid].allstats; }),
                             colorScale = d3.scale.linear()
                                 .range(['white', 'darkred'])
                                 .domain([min, max]);
@@ -154,7 +164,7 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                             d3state
                                 .transition()
                                 .duration(400)
-                                .style("fill", colorScale(group.mergedstats));
+                                .style("fill", colorScale(group[mapid].mergedstats));
                             
                             // shows tooltip on mouseover
                             $state.on("mouseover", function() {
@@ -166,7 +176,7 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                                 
                                 $(this).data("fill", $(this).css("fill")).css("fill", "orange");
                  
-                                tooltip.html(toStringFunc(group, group.mergedstats))
+                                tooltip.html(toStringFunc(group, group[mapid].mergedstats))
                                     .style("left", x + "px")
                                     .style("top", y - 20 + "px");
                                 tooltip.transition().duration(200).style("opacity", 1);
