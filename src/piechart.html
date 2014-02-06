@@ -8,7 +8,6 @@
     </head>
     <body>
         <script>
-            // WORK IN PROGRESS !!
             var width = 960,
             height = 500,
             radius = Math.min(width, height) / 2;
@@ -16,7 +15,7 @@
             var color = d3.scale.category20();
             
             var pie = d3.layout.pie()
-                .value(function(d) { return d.education; })
+                .value(function(d) { return d.values.length; })
                 .sort(null);
             
             var arc = d3.svg.arc()
@@ -30,46 +29,41 @@
                 .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
             
             d3.tsv("data/SPPA82-12-filtered.tsv", function(data) {
-              var nest = d3.nest()
-                    .key(function(d) { return d.jazz; })
-                    .key(function(d) { return d.education; })
-                    .rollup(function(leaves) { return [{ "value": leaves.length }] })
-                    .entries(data);
+            // groups all data by state
+            /*var groups = d3.nest()
+                .key(function(d) {return d.fips_state})
+                .key(function(d) {return d.year})
+                .entries(data);*/
                 
-              var getData = function(nest) {
-                  nest.forEach(function(val) {
-                      if(val.key == "yes") {
-                          dataz = val.values;
-                          return val.values;
-                      }
-                  })
-              }
+                var groups2 = d3.nest()
+                .key(function(d) {return d.fips_state})
+                .key(function(d) {return d.year})
+                .key(function(d) {return d.education})
+                .entries(data);
                 
-                console.log(getData(nest));
-              var dataz = getData(nest);
-              console.log(dataz);
+                var temp = $.map(groups2, function (val) { if (val.key == "al") return val; });
+                var data1 = $.map(temp[0].values, function (val) { if (val.key == "2012") return val; })[0].values;
+                var data2 = $.map(temp[0].values, function (val) { if (val.key == "2008") return val; })[0].values;
                 
-              var path = svg.datum(data).selectAll("path")
-                  .data(pie)
-                .enter().append("path")
-                  .attr("fill", function(d, i) { return color(i); })
-                  .attr("d", arc)
-                  .each(function(d) { this._current = d; }); // store the initial angles
-            
-              d3.selectAll("input")
-                  .on("change", change);
-            
-              var timeout = setTimeout(function() {
-                d3.select("input[value=\"oranges\"]").property("checked", true).each(change);
-              }, 2000);
-            
-              function change() {
-                var value = this.value;
-                clearTimeout(timeout);
-                pie.value(function(d) { return d[value]; }); // change the value function
-                path = path.data(pie); // compute the new angles
-                path.transition().duration(750).attrTween("d", arcTween); // redraw the arcs
-              }
+                var path = svg.selectAll("path")
+                    .data(pie(data1))
+                    .enter()
+                    .append("path");
+                
+                function change(data) {
+                    path = path.data(pie(data)); // compute the new angles
+                    path.transition().duration(750).attrTween("d", arcTween); // redraw the arcs
+                }
+                
+                path.transition()
+                    .duration(500)
+                    .attr("fill", function(d, i) { return color(i); })
+                    .attr("d", arc)
+                    .each(function(d) { this._current = d; }); // store the initial angles
+                
+                $(document).ready(function() {
+                    setTimeout(change(data2),5000);
+                });
             });
             
             // Store the displayed angles in _current.
