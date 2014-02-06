@@ -6,6 +6,9 @@
         <script src="js/topojson.v1.min.js"></script>
         <script src="js/jquery-1.11.0.min.js"></script>
         <script src="js/usmapvis.js"></script>
+        <script type="text/javascript" src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css">
         <link href="css/style.css" rel="stylesheet" type="text/css">
     </head>
     <body>
@@ -96,7 +99,7 @@
                     $("<label>")
                         .attr("for", "cb" + cultural)
                         .append(cb)
-                        .append("Select " + cultural)
+                        .append("&nbsp;Select " + cultural)
                         .appendTo($("#mapfilters"));
                 });
                 
@@ -104,9 +107,52 @@
                 $("#mapfilters input[id^='cb']:eq(0)").attr("checked", true);
                 showStatistics();
                 
-                map1.addClickStateFunction(function(e, group, years) {
-                    console.log("clicked on", e, group, years);
-                });
+                /**
+                *   COMPARE TOOL
+                 */
+                
+                var compare = (function (num) {
+                    var selected = [],
+                        maps = [],
+                        clickHandler = function(e, map, group, years) {
+                            var new_select = {
+                                    state: group,
+                                    years: years
+                                },
+                                new_selected = $.grep(selected, function (select) {
+                                    return !selectedEquals(select, new_select);
+                                });
+                            
+                            // unselected
+                            if (selected.length !== new_selected.length) {
+                                selected = new_selected;
+                                // remove pie
+                            }
+                            // selected
+                            else {
+                                selected.push(new_select);                                
+                                // add pie
+                            }
+                        },
+                        selectedEquals = function (s1, s2) {
+                            return (s1.state.key == s2.state.key &&
+                                        $(s1.years).not(s2.years).length == 0 && 
+                                        $(s2.years).not(s1.years).length == 0)
+                        },
+                        setMaps = function (maps_in) {
+                            $.extend(maps, maps_in);
+                            
+                            $.map(maps, function (map) {
+                                map1.addClickStateFunction(clickHandler);
+                            });
+                        };                    
+                    
+                    return {
+                        setMaps: setMaps
+                    };
+                }(3));
+                
+                compare.setMaps([map1, map2, map3]);
             });
             
         </script>

@@ -234,7 +234,7 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                             jq_self.on("click", function (e) {
                                 var _self = this;
                                 $.map(externalclickstatefuncs, function (click_func) {
-                                    click_func.apply(_self, [e, group, years]);
+                                    click_func.apply(_self, [e, public_methods, group, years]);
                                 });
                             });
                         });
