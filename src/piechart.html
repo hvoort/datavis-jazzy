@@ -8,7 +8,7 @@
         <link href="css/style.css" rel="stylesheet" type="text/css">
     </head>
     <body>
-        <div class="tooltip" style="display:none;"></div>
+        <div id="pietooltip" class="tooltip" style="display:none;"></div>
         <script>
             var width = 960,
             height = 500,
@@ -63,17 +63,17 @@
                     .append("path")
                     .attr("fill", function(d, i) { return color(i); })
                     .on('mouseover', function(d) {
-                        $(".tooltip")
+                        $("#pietooltip")
                           .html(d.data.key + "<br/>" + d.data.value.toFixed(2) + "%")
                           .show();
                     })
                     .on('mousemove', function(d) {
-                        $(".tooltip")
+                        $("#pietooltip")
                           .css('left', d3.mouse(this)[0]+width/2)
                           .css('top', d3.mouse(this)[1]+height/2)
                     })
                     .on('mouseout', function(d) {
-                        $(".tooltip").html('').hide();
+                        $("#pietooltip").html('').hide();
                     });
                 
                 function change(data) {
