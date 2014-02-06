@@ -77,7 +77,9 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                 tooltip = target
                     .append("div")
                     .attr("class", "tooltip")
-                    .style("opacity", 0);
+                    .style("opacity", 0),
+                
+                hoverstatesfuncs = {};
             
             var initialize = function () {   
                     createUsMap();                    
@@ -166,23 +168,34 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                                 .duration(400)
                                 .style("fill", colorScale(group[mapid].mergedstats));
                             
+                            hoverstatesfuncs[group.key.toUpperCase()] = function (show) {
+                                var show = (show === undefined ? true : show),
+                                    statecode = group.key.toUpperCase(),
+                                    self = $(target.node()).find("g.state-path[code='"+statecode+"']");
+                                
+                                console.log("hover ", group.key, show, self);
+                                if (show === true) {
+                                    var centroid = centroids[statecode],
+                                        x = centroid[0], // + target.position().left;
+                                        y = centroid[1]; //+ target.position().top;
+                                    
+                                    self.data("fill", self.css("fill")).css("fill", "orange");
+                     
+                                    tooltip.html(toStringFunc(group, group[mapid].mergedstats))
+                                        .style("left", x + "px")
+                                        .style("top", y - 20 + "px");
+                                    tooltip.transition().duration(200).style("opacity", 1);
+                                } else {
+                                    self.css("fill", self.data("fill"));
+                                    tooltip.transition().duration(500).style("opacity", 0);
+                                }                                
+                            }
+                            
                             // shows tooltip on mouseover
                             $state.on("mouseover", function() {
-                                var statecode = $(this).attr("code"),
-                                    state = $(this).attr("state"),
-                                    centroid = centroids[statecode],
-                                    x = centroid[0]; // + target.position().left;
-                                    y = centroid[1]; //+ target.position().top;
-                                
-                                $(this).data("fill", $(this).css("fill")).css("fill", "orange");
-                 
-                                tooltip.html(toStringFunc(group, group[mapid].mergedstats))
-                                    .style("left", x + "px")
-                                    .style("top", y - 20 + "px");
-                                tooltip.transition().duration(200).style("opacity", 1);
+                                hoverState(group.key.toUpperCase());
                             }).on("mouseout", function(d) {
-                                $(this).css("fill", $(this).data("fill"));
-                                tooltip.transition().duration(500).style("opacity", 0);
+                                hoverState(group.key.toUpperCase(), false);
                             });
                             
                             // State interaction with other graphs
@@ -193,6 +206,14 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                             }(group)));
                         });
                     });                   
+                },
+                hoverState = function (code, show, spread) {
+                    var show = (show == undefined ? true : show),
+                        spread = (spread == undefined ? true : spread);
+                    
+                    if (hoverstatesfuncs[code] === undefined) return console.error("Hover func undefined");
+                    
+                    hoverstatesfuncs[code](show);  
                 };
             
             // Initialize the map and data
