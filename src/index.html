@@ -7,10 +7,13 @@
         <script src="js/jquery-1.11.0.min.js"></script>
         <script src="js/usmapvis.js"></script>
         <script src="js/piecharts.js"></script>
+        <script src="js/parallelsets.js"></script>
+        <script src="js/d3.parsets.js"></script>
         <script type="text/javascript" src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
         <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
         <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css">
         <link href="css/style.css" rel="stylesheet" type="text/css">
+        <link href="css/d3.parsets.css" rel="stylesheet" type="text/css">
     </head>
     <body>
         <div id="pietooltip" class="tooltip" style="display:none;"></div>
@@ -134,8 +137,10 @@
                             // selected
                             else {
                                 selected.push(new_select);                                
-                                // add pie
-                                makePie(new_select.state, new_select.years, "education");
+                                // add pie 
+                                // TODO: selector for variable and new targets divs with text above pie
+                                makePie(new_select.state, new_select.years, "education", d3.select("body"));
+                                makeParallelSets(new_select.state, [], [], ["jazz", "education", "income", "gender"], d3.select("body"));
                             }
                         },
                         selectedEquals = function (s1, s2) {

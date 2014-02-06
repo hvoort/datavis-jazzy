@@ -1,6 +1,6 @@
-function makePie(data, year, variable) {
-    var width = 960,
-        height = 500,
+function makePie(data, year, variable, target) {
+    var width = 300,
+        height = 300,
         radius = Math.min(width, height) / 2;
         
     var color = d3.scale.category20();
@@ -22,23 +22,34 @@ function makePie(data, year, variable) {
     var temp = selectYear(data, year[0]);
     var workingdata = computePercentages(temp, variable);
     
+    var tooltip = target
+        .append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0);
+    
+    var jq_tooltip = $(tooltip.node());
+    
     var path = svg.selectAll("path")
         .data(pie(workingdata))
         .enter()
         .append("path")
         .attr("fill", function(d, i) { return color(i); })
         .on('mouseover', function(d) {
-            $("#pietooltip")
-              .html(d.data.key + "<br/>" + d.data.value.toFixed(2) + "%")
-              .show();
-        })
-        .on('mousemove', function(d) {
-            $("#pietooltip")
-              .css('left', d3.mouse(this)[0]+width/2)
-              .css('top', d3.mouse(this)[1]+height/2)
+            console.log($(svg.node()).position());
+            var position = {
+                "top": $(svg.node()).position().top + d3.mouse(this)[1]+width/2 + "px",
+                "left": $(svg.node()).position().left + d3.mouse(this)[0]+width/2 + "px"
+            };
+            if (parseFloat($(tooltip.node()).css("opacity")) > 0)
+                $(tooltip.node()).stop().animate(position, 200);    
+            else 
+                $(tooltip.node()).css(position);
+            
+            tooltip.transition().duration(200).style("opacity", 1);
+            tooltip.html(d.data.key + "<br/>" + d.value.toFixed(2) + "%");
         })
         .on('mouseout', function(d) {
-            $("#pietooltip").html('').hide();
+            tooltip.transition().duration(500).style("opacity", 0);
         });
 
     function change(data) {
