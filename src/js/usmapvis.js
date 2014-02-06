@@ -178,7 +178,8 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                             d3_self
                                 .transition()
                                 .duration(400)
-                                .style("fill", colorScale(group[mapid].mergedstats));
+                                .style("fill", colorScale(group[mapid].mergedstats))
+                                .attr("basefill", colorScale(group[mapid].mergedstats));
                             
                             hoverstatesfuncs[group.key.toUpperCase()] = function (show, origin) {
                                 var show = (show === undefined ? true : show),
@@ -189,9 +190,9 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                                         x = centroid[0], // + target.position().left;
                                         y = centroid[1]; //+ target.position().top;
                                     
-                                    // save color and fill with active color
-                                    if (jq_self.data("fill") === undefined) jq_self.data("fill", jq_self.css("fill"));
-                                    d3_self.transition().duration(200).style("fill", "orange");
+                                    // fill with active color
+                                    if (d3_self.attr("selected") !== "selected")
+                                        d3_self.transition().duration(200).style("fill", "orange");
                                     
                                     if (origin !== false) {
                                         var diff = group[mapid].mergedstats - group[origin.getId()].mergedstats,
@@ -218,7 +219,8 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                                     
                                     d3_tooltip.transition().duration(200).style("opacity", 1);
                                 } else {
-                                    d3_self.transition().duration(200).style("fill", jq_self.data("fill"));
+                                    if (d3_self.attr("selected") !== "selected")
+                                        d3_self.transition().duration(200).style("fill", jq_self.attr("basefill"));
                                     d3_tooltip.transition().duration(500).style("opacity", 0);
                                 }                                
                             }
@@ -270,6 +272,7 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                         hoverState(code, show, origin);
                     },
                     getId: function () { return mapid; },
+                    getTarget: function () { return target; },
                     addClickStateFunction: addClickStateFunction,
                     showStatistic: showStatistic
                 };

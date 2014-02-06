@@ -7,10 +7,10 @@
         <script src="js/jquery-1.11.0.min.js"></script>
         <script src="js/usmapvis.js"></script>
         <script src="js/piecharts.js"></script>
-        <script type="text/javascript" src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
-        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
-        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css">
-        <link href="css/style.css" rel="stylesheet" type="text/css">
+        <script src="js/jquery-1.10.2.min.js"></script>
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <link rel="stylesheet" href="css/bootstrap-theme.min.css">
+        <link rel="stylesheet" href="css/style.css">
     </head>
     <body>
         <div id="pietooltip" class="tooltip" style="display:none;"></div>
@@ -124,17 +124,23 @@
                                 },
                                 new_selected = $.grep(selected, function (select) {
                                     return !selectedEquals(select, new_select);
-                                });
+                                }),
+                                statecode = group.key.toUpperCase(),
+                                d3this = d3.select(this);
                             
                             // unselected
                             if (selected.length !== new_selected.length) {
                                 selected = new_selected;
                                 // remove pie
+                                d3this.attr("selected", "");
+                             
                             }
                             // selected
                             else {
                                 selected.push(new_select);                                
                                 // add pie
+                                d3this.style("fill", "mediumseagreen");
+                                d3this.attr("selected", "selected");
                                 makePie(new_select.state, new_select.years, "education");
                             }
                         },
@@ -147,7 +153,7 @@
                             $.extend(maps, maps_in);
                             
                             $.map(maps, function (map) {
-                                map1.addClickStateFunction(clickHandler);
+                                map.addClickStateFunction(clickHandler);
                             });
                         };                    
                     
