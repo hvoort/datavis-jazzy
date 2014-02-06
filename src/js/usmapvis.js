@@ -148,8 +148,8 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                                 }
                             });
                             group[mapid] = group[mapid] || {};
-                            group[mapid].mergedstats = sum/years.length;
-                            group[mapid].allstats = (sum + missingsum)/group.values.length;
+                            group[mapid].mergedstats = sum/years.length || 0;
+                            group[mapid].allstats = (sum + missingsum)/group.values.length || 0;
                         });
                         
                         // compute maximum percentage over all states and set a gradient color range
