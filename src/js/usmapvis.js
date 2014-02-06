@@ -163,12 +163,15 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                                     centroid = centroids[statecode],
                                     x = centroid[0]; // + target.position().left;
                                     y = centroid[1]; //+ target.position().top;
+                                
+                                $(this).data("fill", $(this).css("fill")).css("fill", "orange");
                  
                                 tooltip.html(toStringFunc(group, group.mergedstats))
                                     .style("left", x + "px")
                                     .style("top", y - 20 + "px");
                                 tooltip.transition().duration(200).style("opacity", 1);
                             }).on("mouseout", function(d) {
+                                $(this).css("fill", $(this).data("fill"));
                                 tooltip.transition().duration(500).style("opacity", 0);
                             });
                             

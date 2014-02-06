@@ -16,9 +16,9 @@ body {
     fill: white;
 }
 
-.states .state-path:hover {
+/*.states .state-path:hover {
     fill: orange !important;
-}
+}*/
 
 .states .active {
   fill: orange;
