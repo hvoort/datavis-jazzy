@@ -16,13 +16,18 @@ function makePie(data, year, variable, target) {
     var svg = d3.select("body").append("svg")
         .attr("width", width)
         .attr("height", height)
-      .append("g")
+        .append("g")
         .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
     
     var temp = selectYear(data, year[0]);
     var workingdata = computePercentages(temp, variable);
     
     var tooltip = target
+        .append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0);
+    
+    var description = target
         .append("div")
         .attr("class", "tooltip")
         .style("opacity", 0);
@@ -35,7 +40,6 @@ function makePie(data, year, variable, target) {
         .append("path")
         .attr("fill", function(d, i) { return color(i); })
         .on('mouseover', function(d) {
-            console.log($(svg.node()).position());
             var position = {
                 "top": $(svg.node()).position().top + d3.mouse(this)[1]+width/2 + "px",
                 "left": $(svg.node()).position().left + d3.mouse(this)[0]+width/2 + "px"
@@ -51,6 +55,18 @@ function makePie(data, year, variable, target) {
         .on('mouseout', function(d) {
             tooltip.transition().duration(500).style("opacity", 0);
         });
+    
+    description.html(variable + " distribution in " + data.name + " (" + year[0] + ")");
+    var position = {
+        "top": $(svg.node()).position().top - height/2 - 20 + "px",
+        "left": $(svg.node()).position().left - width/2 + (width - $(description.node()).width())/2 + "px"
+    };
+    
+    console.log(width);
+    console.log($(description.node()).width());
+    
+    $(description.node()).css(position);
+    description.transition().duration(200).style("opacity", 1);
 
     function change(data) {
         path = path.data(pie(data)); // compute the new angles

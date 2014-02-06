@@ -31,12 +31,9 @@ function makeParallelSets(data, states, years, variables, target) {
     
     variables.forEach(function(cat) {
         if(culturals.indexOf(cat) != -1) {
-            console.log(cat);
-            filtered = filtered.filter(function(d) { console.log(d); console.log(d[cat]); return d[cat] == "yes" || d[cat] == "no"; });
+            filtered = filtered.filter(function(d) { return d[cat] == "yes" || d[cat] == "no"; });
         }
     });
-    
-    console.log(filtered);
     
     vis.datum(filtered).call(chart);
 }
