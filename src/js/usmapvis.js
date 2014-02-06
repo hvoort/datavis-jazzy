@@ -156,7 +156,7 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                         var min = d3.min(groups, function(group) { return +group[mapid].allstats; }), 
                             max = d3.max(groups, function(group) { return +group[mapid].allstats; }),
                             colorScale = d3.scale.linear()
-                                .range(['white', 'darkred'])
+                                .range(['white', 'steelblue'])
                                 .domain([min, max]),
                             relBackScale = d3.scale.linear()
                                 .range(['darkred', 'grey', 'darkgreen'])

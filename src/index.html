@@ -9,30 +9,25 @@
         <link href="css/style.css" rel="stylesheet" type="text/css">
     </head>
     <body>
+        <div id="timeline_container">
+            <div id="timeline"></div>
+        </div>
         <div id="map1" class="map">
-            <h1>2002</h1>
         </div>
         <div id="map2" class="map">
-            <h1>2008</h1>
         </div>
         <div id="map3" class="map">
-            <h1>2012</h1>
         </div>
         <div id="mapfilters" class="mapfilters"></div>
         <script>
             $(function () {
-                var map1 = usmapvis.createMap(d3.select("#map1"), {
+                var mapconfig = {
                         width: 400,
                         height: 300
-                    }),
-                    map2 = usmapvis.createMap(d3.select("#map2"), {
-                        width: 400,
-                        height: 300
-                    }),
-                    map3 = usmapvis.createMap(d3.select("#map3"), {
-                        width: 400,
-                        height: 300
-                    }),
+                    };
+                    map1 = usmapvis.createMap(d3.select("#map1"), mapconfig),
+                    map2 = usmapvis.createMap(d3.select("#map2"), mapconfig),
+                    map3 = usmapvis.createMap(d3.select("#map3"), mapconfig),
                     
                     generic_sum = function (prop) {
                        return function (group) {
@@ -44,26 +39,47 @@
                     },
                     perc_tooltip = function(group, val) {
                         return group.name + "<br/>" + val.toFixed(2) + "%";
-                    };
+                    },
+                    culturals = ["jazz", "classical", "opera", "musical", "play", "ballet", "dance", "artmuseum", "park", "books"],
+                    culturalcbs = [];
+                
+                    years = [2002, 2008, 2012];
+                
+                /**
+                * TIMELINE
+                */
+                $("#timeline_container").css("width", mapconfig.width * 3 + "px");
+                $.map(years, function (year) {
+                    var $timeline = $("#timeline"),
+                        $timeline_container = $("#timeline_container"),
+                        min = Math.min.apply(null, years),
+                        max = Math.max.apply(null, years),
+                        span = max - min,
+                        spanwidth = $timeline.width(),
+                        spanpadding = 100,
+                        position = Math.round(((year - min) / span) * (spanwidth - 2 * spanpadding)),
+                        $div = $("<div />");
+                    
+                    $div.addClass("tooltip") // styling
+                        .text(year)
+                        .appendTo($timeline_container)
+                        .css({
+                            "top": "40px",
+                            "left": $timeline.offset().left + position + spanpadding - $div.width() + "px"
+                        });
+                });
                 
                 map1.linkMaps([map2, map3]);
                 map2.linkMaps([map1, map3]);
-                map3.linkMaps([map1, map2]);
-                
-                var culturals = ["jazz", "classical", "opera", "musical", "play", "ballet", "dance", "artmuseum", "park", "books"]
-                var culturalcbs = [];
-                
-                selectedCbs = function () { 
-                    return $("#mapfilters input[id^='cb']:checked").map(function(){
-                      return $(this).val();
-                    }).get();
-                }
+                map3.linkMaps([map1, map2]);                
                 
                 showStatistics = function() {
-                    var selected = selectedCbs();
-                    map1.showStatistic(selected, ["2002"], perc_tooltip);
-                    map2.showStatistic(selected, ["2008"], perc_tooltip);
-                    map3.showStatistic(selected, ["2012"], perc_tooltip);
+                    var selected = $("#mapfilters input[id^='cb']:checked").map(function(){
+                      return $(this).val();
+                    }).get();
+                    map1.showStatistic(selected, ["" + years[0]], perc_tooltip);
+                    map2.showStatistic(selected, ["" + years[1]], perc_tooltip);
+                    map3.showStatistic(selected, ["" + years[2]], perc_tooltip);
                 }
                 
                 culturals.forEach(function(cultural) {
