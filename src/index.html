@@ -12,13 +12,19 @@
         <script type="text/javascript" src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
         <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
         <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css">
-        <link href="css/style.css" rel="stylesheet" type="text/css">
         <link href="css/d3.parsets.css" rel="stylesheet" type="text/css">
+        <script src="js/jquery-1.10.2.min.js"></script>
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <link rel="stylesheet" href="css/bootstrap-theme.min.css">
+        <link rel="stylesheet" href="css/style.css">
     </head>
     <body>
         <div id="pietooltip" class="tooltip" style="display:none;"></div>
         <div id="timeline_container">
             <div id="timeline"></div>
+        </div>
+        <div id="selected_container">
+            <div id="selected"><p></p></div>
         </div>
         <div id="map1" class="map">
         </div>
@@ -118,8 +124,19 @@
                  */
                 
                 var compare = (function (num) {
-                    var selected = [],
+                    var $pEl = $("#selected p"),
+                        selected = [],
                         maps = [],
+                        render = function () {
+                            if (selected.length === 0) {
+                                $pEl.text("No states selected.");
+                            } else {
+                                $pEl.text("You selected: ");
+                                $pEl.append($.map(selected, function (select) {
+                                    return select.state.name;
+                                }).join(", ")).closest("#selected_container").animate({ "opacity": 1}, 200);
+                            }
+                        },
                         clickHandler = function(e, map, group, years) {
                             var new_select = {
                                     state: group,
@@ -127,21 +144,30 @@
                                 },
                                 new_selected = $.grep(selected, function (select) {
                                     return !selectedEquals(select, new_select);
-                                });
+                                }),
+                                statecode = group.key.toUpperCase(),
+                                d3this = d3.select(this);
                             
                             // unselected
                             if (selected.length !== new_selected.length) {
                                 selected = new_selected;
                                 // remove pie
+                                d3this.attr("selected", "");
+                                
                             }
                             // selected
                             else {
                                 selected.push(new_select);                                
-                                // add pie 
+                                
+                                // add pie
+                                d3this.style("fill", "mediumseagreen");
+                                d3this.attr("selected", "selected");
                                 // TODO: selector for variable and new targets divs with text above pie
                                 makePie(new_select.state, new_select.years, "education", d3.select("body"));
                                 makeParallelSets(new_select.state, [], [], ["jazz", "education", "income", "gender"], d3.select("body"));
+
                             }
+                            render();
                         },
                         selectedEquals = function (s1, s2) {
                             return (s1.state.key == s2.state.key &&
@@ -152,7 +178,7 @@
                             $.extend(maps, maps_in);
                             
                             $.map(maps, function (map) {
-                                map1.addClickStateFunction(clickHandler);
+                                map.addClickStateFunction(clickHandler);
                             });
                         };                    
                     
