@@ -17,6 +17,9 @@
         <div id="timeline_container">
             <div id="timeline"></div>
         </div>
+        <div id="selected_container">
+            <div id="selected"><p></p></div>
+        </div>
         <div id="map1" class="map">
         </div>
         <div id="map2" class="map">
@@ -115,8 +118,19 @@
                  */
                 
                 var compare = (function (num) {
-                    var selected = [],
+                    var $pEl = $("#selected p"),
+                        selected = [],
                         maps = [],
+                        render = function () {
+                            if (selected.length === 0) {
+                                $pEl.text("No states selected.");
+                            } else {
+                                $pEl.text("You selected: ");
+                                $pEl.append($.map(selected, function (select) {
+                                    return select.state.name;
+                                }).join(", ")).closest("#selected_container").animate({ "opacity": 1}, 200);
+                            }
+                        },
                         clickHandler = function(e, map, group, years) {
                             var new_select = {
                                     state: group,
@@ -133,7 +147,7 @@
                                 selected = new_selected;
                                 // remove pie
                                 d3this.attr("selected", "");
-                             
+                                
                             }
                             // selected
                             else {
@@ -141,8 +155,9 @@
                                 // add pie
                                 d3this.style("fill", "mediumseagreen");
                                 d3this.attr("selected", "selected");
-                                makePie(new_select.state, new_select.years, "education");
+//                                makePie(new_select.state, new_select.years, "education");
                             }
+                            render();
                         },
                         selectedEquals = function (s1, s2) {
                             return (s1.state.key == s2.state.key &&
