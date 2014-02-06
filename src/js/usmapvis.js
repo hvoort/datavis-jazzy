@@ -82,8 +82,8 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                 
                 linkedmaps = [],
                 hoverstatesfuncs = {},
-                
-                compareTo;
+            
+                externalclickstatefuncs = [];
             
             var initialize = function () {   
                     createUsMap();                    
@@ -231,11 +231,12 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                             });
                             
                             // State interaction with other graphs
-                            jq_self.on("click", (function (group) {
-                                return function(e) {
-                                    console.log("clicked on", group.key);
-                                }
-                            }(group)));
+                            jq_self.on("click", function (e) {
+                                var _self = this;
+                                $.map(externalclickstatefuncs, function (click_func) {
+                                    click_func.apply(_self, [e, group, years]);
+                                });
+                            });
                         });
                     });                   
                 },
@@ -249,12 +250,14 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                     
                     if (origin === false || origin.getId() === mapid) {
                         linkedmaps.forEach(function (map) {
-                            map.hoverState(code, show, public_methods);
+                            map.setHoverState(code, show, public_methods);
                         });
                     }
                 },
-                compareStatisticTo = function (map) {
-                    compareTo = map;
+                addClickStateFunction = function (click_func) {
+                    if (typeof click_func === 'function') {
+                        externalclickstatefuncs.push(click_func); 
+                    }
                 },
                 public_methods = {
                     linkMaps: function (maps) {
@@ -263,11 +266,11 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                         
                         $.extend(linkedmaps, maps);
                     },
-                    hoverState: function (code, show, origin) {
+                    setHoverState: function (code, show, origin) {
                         hoverState(code, show, origin);
                     },
                     getId: function () { return mapid; },
-                    compareStatisticTo: compareStatisticTo,
+                    addClickStateFunction: addClickStateFunction,
                     showStatistic: showStatistic
                 };
             

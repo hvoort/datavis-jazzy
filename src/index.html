@@ -103,6 +103,10 @@
                 // Default show
                 $("#mapfilters input[id^='cb']:eq(0)").attr("checked", true);
                 showStatistics();
+                
+                map1.addClickStateFunction(function(e, group, years) {
+                    console.log("clicked on", e, group, years);
+                });
             });
             
         </script>
