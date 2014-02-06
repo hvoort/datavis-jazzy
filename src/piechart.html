@@ -5,8 +5,10 @@
         <script src="js/d3.v3.min.js"></script>
         <script src="js/jquery-1.11.0.min.js"></script>
         <link href="css/pie.css" rel="stylesheet" type="text/css">
+        <link href="css/style.css" rel="stylesheet" type="text/css">
     </head>
     <body>
+        <div id="pietooltip" class="tooltip" style="display:none;"></div>
         <script>
             var width = 960,
             height = 500,
@@ -15,7 +17,7 @@
             var color = d3.scale.category20();
             
             var pie = d3.layout.pie()
-                .value(function(d) { return d.values.length; })
+                .value(function(d) { return d.value; })
                 .sort(null);
             
             var arc = d3.svg.arc()
@@ -45,10 +47,34 @@
                 var data1 = $.map(temp[0].values, function (val) { if (val.key == "2012") return val; })[0].values;
                 var data2 = $.map(temp[0].values, function (val) { if (val.key == "2008") return val; })[0].values;
                 
+                function percentages(dat) {
+                    var total = d3.sum(dat, function(d) { return d.values.length; } );
+                    dat.forEach(function(cat) {
+                        cat.value = cat.values.length / total * 100;
+                    });
+                }
+                
+                percentages(data1);
+                percentages(data2);
+                
                 var path = svg.selectAll("path")
                     .data(pie(data1))
                     .enter()
-                    .append("path");
+                    .append("path")
+                    .attr("fill", function(d, i) { return color(i); })
+                    .on('mouseover', function(d) {
+                        $("#pietooltip")
+                          .html(d.data.key + "<br/>" + d.data.value.toFixed(2) + "%")
+                          .show();
+                    })
+                    .on('mousemove', function(d) {
+                        $("#pietooltip")
+                          .css('left', d3.mouse(this)[0]+width/2)
+                          .css('top', d3.mouse(this)[1]+height/2)
+                    })
+                    .on('mouseout', function(d) {
+                        $("#pietooltip").html('').hide();
+                    });
                 
                 function change(data) {
                     path = path.data(pie(data)); // compute the new angles
