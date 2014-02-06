@@ -57,7 +57,8 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
             if (target === undefined || !(target instanceof d3.selection)) return console.error("no d3 target given");
             
             // declare variables
-            var mapid = unique(),
+            var _self = this,
+                mapid = unique(),
             
                 centroids = {},
                 centered,
@@ -156,7 +157,10 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                             max = d3.max(groups, function(group) { return +group[mapid].allstats; }),
                             colorScale = d3.scale.linear()
                                 .range(['white', 'darkred'])
-                                .domain([min, max]);
+                                .domain([min, max]),
+                            relBackScale = d3.scale.linear()
+                                .range(['darkred', 'grey', 'darkgreen'])
+                                .domain([-1, 0, 1]);
                         
                         groups.forEach(function(group) {
                             var statecode = group.key.toUpperCase(),
@@ -168,6 +172,7 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                             
                             // unbind all previous events
                             jq_self.unbind();
+                            jq_self.removeData();
                             
                             // color the state according to the stats
                             d3_self
@@ -175,8 +180,9 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                                 .duration(400)
                                 .style("fill", colorScale(group[mapid].mergedstats));
                             
-                            hoverstatesfuncs[group.key.toUpperCase()] = function (show) {
-                                var show = (show === undefined ? true : show);
+                            hoverstatesfuncs[group.key.toUpperCase()] = function (show, origin) {
+                                var show = (show === undefined ? true : show),
+                                    origin = (origin === undefined ? false : origin);
                                 
                                 if (show === true) {
                                     var centroid = centroids[statecode],
@@ -187,14 +193,17 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                                     if (jq_self.data("fill") === undefined) jq_self.data("fill", jq_self.css("fill"));
                                     d3_self.transition().duration(200).style("fill", "orange");
                                     
-                                    if (compareTo !== undefined) {
-                                        var diff = group[mapid].mergedstats - group[compareTo.getId()].mergedstats;
+                                    if (origin !== false) {
+                                        var diff = group[mapid].mergedstats - group[origin.getId()].mergedstats,
+                                            rel_diff = diff / group[origin.getId()].mergedstats;
                                         d3_tooltip
-                                            .style("background", (diff > 0 ? "darkgreen": (diff < 0 ? "darkred": "grey")))
+                                            .style("background", relBackScale(Math.max(Math.min(1, rel_diff), -1)))
+                                            .style("color", "white")
                                             .html(toStringFunc(group, diff));
                                     } else {
                                         d3_tooltip
-                                            .style("background", "")
+                                            .style("background", "lightgrey")
+                                            .style("color", "black")
                                             .html(toStringFunc(group, group[mapid].mergedstats));
                                     }
                      
@@ -230,41 +239,42 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                         });
                     });                   
                 },
-                hoverState = function (code, show, spread) {
+                hoverState = function (code, show, origin) {
                     var show = (show == undefined ? true : show),
-                        spread = (spread == undefined ? true : spread);
+                        origin = (origin == undefined ? false : origin);
                     
                     if (hoverstatesfuncs[code] === undefined) return console.error("Hover func undefined");
                     
-                    hoverstatesfuncs[code](show);
+                    hoverstatesfuncs[code](show, origin);
                     
-                    if (spread === true) {
+                    if (origin === false || origin.getId() === mapid) {
                         linkedmaps.forEach(function (map) {
-                            map.hoverState(code, show);
+                            map.hoverState(code, show, public_methods);
                         });
                     }
                 },
                 compareStatisticTo = function (map) {
                     compareTo = map;
+                },
+                public_methods = {
+                    linkMaps: function (maps) {
+                        if (Object.prototype.toString.call(maps) !== '[object Array]')
+                            maps = [maps];
+                        
+                        $.extend(linkedmaps, maps);
+                    },
+                    hoverState: function (code, show, origin) {
+                        hoverState(code, show, origin);
+                    },
+                    getId: function () { return mapid; },
+                    compareStatisticTo: compareStatisticTo,
+                    showStatistic: showStatistic
                 };
             
             // Initialize the map and data
             initialize();
             
-            return {
-                linkMaps: function (maps) {
-                    if (Object.prototype.toString.call(maps) !== '[object Array]')
-                        maps = [maps];
-                    
-                    $.extend(linkedmaps, maps);
-                },
-                hoverState: function (code, show) {
-                    hoverState(code, show, false);
-                },
-                getId: function () { return mapid; },
-                compareStatisticTo: compareStatisticTo,
-                showStatistic: showStatistic
-            };
+            return public_methods;
         }(target, opts));
     },
         
