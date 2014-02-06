@@ -172,6 +172,7 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                             
                             // unbind all previous events
                             jq_self.unbind();
+                            jq_self.removeData();
                             
                             // color the state according to the stats
                             d3_self
