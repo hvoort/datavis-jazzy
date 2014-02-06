@@ -182,7 +182,7 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                                         y = centroid[1]; //+ target.position().top;
                                     
                                     // save color and fill with active color
-                                    jq_self.data("fill", jq_self.css("fill"));
+                                    if (jq_self.data("fill") === undefined) jq_self.data("fill", jq_self.css("fill"));
                                     d3_self.transition().duration(200).style("fill", "orange");
                      
                                     d3_tooltip.html(toStringFunc(group, group[mapid].mergedstats));
