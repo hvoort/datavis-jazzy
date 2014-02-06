@@ -79,6 +79,7 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                     .attr("class", "tooltip")
                     .style("opacity", 0),
                 
+                linkedmaps = [],
                 hoverstatesfuncs = {};
             
             var initialize = function () {   
@@ -173,7 +174,6 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                                     statecode = group.key.toUpperCase(),
                                     self = $(target.node()).find("g.state-path[code='"+statecode+"']");
                                 
-                                console.log("hover ", group.key, show, self);
                                 if (show === true) {
                                     var centroid = centroids[statecode],
                                         x = centroid[0], // + target.position().left;
@@ -213,15 +213,27 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                     
                     if (hoverstatesfuncs[code] === undefined) return console.error("Hover func undefined");
                     
-                    hoverstatesfuncs[code](show);  
+                    hoverstatesfuncs[code](show);
+                    
+                    if (spread === true) {
+                        linkedmaps.forEach(function (map) {
+                            map.hoverState(code, show);
+                        });
+                    }
                 };
             
             // Initialize the map and data
             initialize();
             
             return {
-                getStates: function () {
+                linkMaps: function (maps) {
+                    if (Object.prototype.toString.call(maps) !== '[object Array]')
+                        maps = [maps];
                     
+                    $.extend(linkedmaps, maps);
+                },
+                hoverState: function (code, show) {
+                    hoverState(code, show, false);
                 },
                 showStatistic: showStatistic
             };
