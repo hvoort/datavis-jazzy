@@ -4,104 +4,23 @@
     <head>
         <script src="js/d3.v3.min.js"></script>
         <script src="js/jquery-1.11.0.min.js"></script>
+        <script src="js/piecharts.js"></script>
         <link href="css/pie.css" rel="stylesheet" type="text/css">
         <link href="css/style.css" rel="stylesheet" type="text/css">
     </head>
     <body>
         <div id="pietooltip" class="tooltip" style="display:none;"></div>
         <script>
-            var width = 960,
-            height = 500,
-            radius = Math.min(width, height) / 2;
-        
-            var color = d3.scale.category20();
-            
-            var pie = d3.layout.pie()
-                .value(function(d) { return d.value; })
-                .sort(null);
-            
-            var arc = d3.svg.arc()
-                .innerRadius(radius - 100)
-                .outerRadius(radius - 20);
-            
-            var svg = d3.select("body").append("svg")
-                .attr("width", width)
-                .attr("height", height)
-              .append("g")
-                .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
-            
             d3.tsv("data/SPPA82-12-filtered.tsv", function(data) {
             // groups all data by state
-            /*var groups = d3.nest()
-                .key(function(d) {return d.fips_state})
-                .key(function(d) {return d.year})
-                .entries(data);*/
+                var groups = d3.nest()
+                    .key(function(d) {return d.fips_state})
+                    .key(function(d) {return d.year})
+                    .entries(data);
                 
-                var groups2 = d3.nest()
-                .key(function(d) {return d.fips_state})
-                .key(function(d) {return d.year})
-                .key(function(d) {return d.education})
-                .entries(data);
-                
-                var temp = $.map(groups2, function (val) { if (val.key == "al") return val; });
-                var data1 = $.map(temp[0].values, function (val) { if (val.key == "2012") return val; })[0].values;
-                var data2 = $.map(temp[0].values, function (val) { if (val.key == "2008") return val; })[0].values;
-                
-                function percentages(dat) {
-                    var total = d3.sum(dat, function(d) { return d.values.length; } );
-                    dat.forEach(function(cat) {
-                        cat.value = cat.values.length / total * 100;
-                    });
-                }
-                
-                percentages(data1);
-                percentages(data2);
-                
-                var path = svg.selectAll("path")
-                    .data(pie(data1))
-                    .enter()
-                    .append("path")
-                    .attr("fill", function(d, i) { return color(i); })
-                    .on('mouseover', function(d) {
-                        $("#pietooltip")
-                          .html(d.data.key + "<br/>" + d.data.value.toFixed(2) + "%")
-                          .show();
-                    })
-                    .on('mousemove', function(d) {
-                        $("#pietooltip")
-                          .css('left', d3.mouse(this)[0]+width/2)
-                          .css('top', d3.mouse(this)[1]+height/2)
-                    })
-                    .on('mouseout', function(d) {
-                        $("#pietooltip").html('').hide();
-                    });
-                
-                function change(data) {
-                    path = path.data(pie(data)); // compute the new angles
-                    path.transition().duration(750).attrTween("d", arcTween); // redraw the arcs
-                }
-                
-                path.transition()
-                    .duration(500)
-                    .attr("fill", function(d, i) { return color(i); })
-                    .attr("d", arc)
-                    .each(function(d) { this._current = d; }); // store the initial angles
-                
-                $(document).ready(function() {
-                    setTimeout(change(data2),5000);
-                });
+                var dat = $.map(groups, function (val) { if (val.key == "al") return val; })[0].values;
+            makePie(dat, ["2012"], "education");
             });
-            
-            // Store the displayed angles in _current.
-            // Then, interpolate from _current to the new angles.
-            // During the transition, _current is updated in-place by d3.interpolate.
-            function arcTween(a) {
-              var i = d3.interpolate(this._current, a);
-              this._current = i(0);
-              return function(t) {
-                return arc(i(t));
-              };
-            }
         </script>
     </body>
 </html>
