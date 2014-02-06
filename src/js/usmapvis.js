@@ -80,7 +80,9 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                     .style("opacity", 0),
                 
                 linkedmaps = [],
-                hoverstatesfuncs = {};
+                hoverstatesfuncs = {},
+                
+                compareTo;
             
             var initialize = function () {   
                     createUsMap();                    
@@ -184,8 +186,18 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                                     // save color and fill with active color
                                     if (jq_self.data("fill") === undefined) jq_self.data("fill", jq_self.css("fill"));
                                     d3_self.transition().duration(200).style("fill", "orange");
+                                    
+                                    if (compareTo !== undefined) {
+                                        var diff = group[mapid].mergedstats - group[compareTo.getId()].mergedstats;
+                                        d3_tooltip
+                                            .style("background", (diff > 0 ? "darkgreen": (diff < 0 ? "darkred": "grey")))
+                                            .html(toStringFunc(group, diff));
+                                    } else {
+                                        d3_tooltip
+                                            .style("background", "")
+                                            .html(toStringFunc(group, group[mapid].mergedstats));
+                                    }
                      
-                                    d3_tooltip.html(toStringFunc(group, group[mapid].mergedstats));
                                     var position = {
                                         "top": jq_self.position().top - jq_tooltip.outerHeight() + "px",
                                         "left": jq_self.position().left + jq_self[0].getBoundingClientRect().width + "px"
@@ -231,6 +243,9 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                             map.hoverState(code, show);
                         });
                     }
+                },
+                compareStatisticTo = function (map) {
+                    compareTo = map;
                 };
             
             // Initialize the map and data
@@ -246,6 +261,8 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                 hoverState: function (code, show) {
                     hoverState(code, show, false);
                 },
+                getId: function () { return mapid; },
+                compareStatisticTo: compareStatisticTo,
                 showStatistic: showStatistic
             };
         }(target, opts));

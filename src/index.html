@@ -49,6 +49,7 @@
                 map1.linkMaps([map2, map3]);
                 map2.linkMaps([map1, map3]);
                 map3.linkMaps([map1, map2]);
+                map2.compareStatisticTo(map1);
                 
                 var culturals = ["jazz", "classical", "opera", "musical", "play", "ballet", "dance", "artmuseum", "park", "books"]
                 var culturalcbs = [];
