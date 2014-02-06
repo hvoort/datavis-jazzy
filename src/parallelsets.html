@@ -5,22 +5,14 @@
         <script src="js/d3.v3.min.js"></script>
         <script src="js/jquery-1.11.0.min.js"></script>
         <script src="js/d3.parsets.js"></script>
+        <script src="js/parallelsets.js"></script>
         <link href="css/d3.parsets.css" rel="stylesheet" type="text/css">
     </head>
     <body>
         <script>
-            var chart = d3.parsets()
-              .dimensions(["jazz", "gender", "education", "employed"]);
-        
-            var vis = d3.select("body").append("svg")
-                .attr("width", chart.width())
-                .attr("height", chart.height());
-            
             d3.tsv("data/SPPA82-12-filtered.tsv", function(data) {
-                var filtered = data.filter(function(d) { return d.jazz == "yes" || d.jazz == "no" });
-                vis.datum(filtered).call(chart);
+                makeParallelSets(data, ["sd", "wy", "nd"], ["2008", "2012"], ["jazz", "classical", "books", "gender", "education", "employed"]);
             });
-
         </script>
     </body>
 </html>
