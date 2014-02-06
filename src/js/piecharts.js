@@ -72,7 +72,7 @@ function makePie(data, year, variable) {
     }
     
     function selectYear(data, year) {
-        return $.map(data, function (val) { if (val.key == year) return val; })[0].values;
+        return $.map(data.values, function (val) { if (val.key == year) return val; })[0].values;
     }
 }
 

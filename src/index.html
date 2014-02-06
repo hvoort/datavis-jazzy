@@ -6,6 +6,7 @@
         <script src="js/topojson.v1.min.js"></script>
         <script src="js/jquery-1.11.0.min.js"></script>
         <script src="js/usmapvis.js"></script>
+        <script src="js/piecharts.js"></script>
         <script type="text/javascript" src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
         <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
         <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css">
@@ -44,6 +45,7 @@
                         return group.name + "<br/>" + val.toFixed(2) + "%";
                     },
                     culturals = ["jazz", "classical", "opera", "musical", "play", "ballet", "dance", "artmuseum", "park", "books"],
+                    comparable = ["income", "marital", "gender", "education", "race", "employed", "agegroup", "mother_educ", "father_educ"],
                     culturalcbs = [];
                 
                     years = [2002, 2008, 2012];
@@ -132,6 +134,7 @@
                             else {
                                 selected.push(new_select);                                
                                 // add pie
+                                makePie(new_select.state, new_select.years, "education");
                             }
                         },
                         selectedEquals = function (s1, s2) {
