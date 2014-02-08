@@ -68,9 +68,10 @@ var compare = function () {
             }
             
             // add values
-            varcard.find("select").append($.map(comparable, function (c) {
-                return "<option>" + ucfirst(c) + "</option>";
-            }).join(""))
+            if (varcard.find("option").length == 0) 
+                varcard.find("select").append($.map(comparable, function (c) {
+                    return "<option>" + ucfirst(c) + "</option>";
+                }).join(""))
             
             // reset values and handlers
             choicecard.find("input").each(function () {
@@ -148,6 +149,7 @@ var compare = function () {
                     // add chart to target
                     // use selected[i].state && selected[i].years
                     
+                    $contEl.css("margin-left", parseInt(min / 2) + "px");
                     break;
                 case "pie":
                     $.map(selected, function (select, i) {
@@ -159,15 +161,11 @@ var compare = function () {
                         // use select.state && select.years
                         
                     }); 
+                    $contEl.css("margin-left", parseInt(selected.length * min / 2) + "px");
                     break;
                     
             }
-            console.log("show comparison", type, v);
-            
-            
-            
-            $contEl.css("margin-left", selected.length * min / 2 + "px");
-            
+            console.log("show comparison", type, v);    
             
         },
         clickHandler = function(e, map, group, years) {
