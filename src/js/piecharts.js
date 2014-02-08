@@ -1,7 +1,5 @@
-function makePie(data, state, year, variable, target) {
-    var width = 300,
-        height = 300,
-        radius = Math.min(width, height) / 2;
+function makePie(data, state, year, variable, target, width, height) {
+    var radius = Math.min(width, height) / 2;
         
     var color = d3.scale.category20();
     

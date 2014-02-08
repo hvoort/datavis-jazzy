@@ -1,4 +1,4 @@
-function makeBarComparison(data, states, years, variable, target) {
+function makeBarComparison(data, states, years, variable, target, w, h) {
     if(states.length != years.length) return console.error("states and years must be of equal length!");
     var data2 = [];
     
@@ -24,8 +24,8 @@ function makeBarComparison(data, states, years, variable, target) {
     var m = data2[0].values.length;
     
     var margin = {top: 20, right: 30, bottom: 30, left: 40},
-        width = 960 - margin.left - margin.right,
-        height = 500 - margin.top - margin.bottom;
+        width = w - margin.left - margin.right,
+        height = h - margin.top - margin.bottom;
     
     var y = d3.scale.linear()
         .domain([0, 100])

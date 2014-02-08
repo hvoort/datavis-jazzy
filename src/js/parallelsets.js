@@ -1,4 +1,4 @@
-function makeParallelSets(data, states, years, variables, target) {
+function makeParallelSets(data, states, years, variables, target, width, height) {
     if(states.length != years.length) return console.error("states and years must be of equal length!");
     if(variables.length == 0) return console.error("you must provide at least one variable!");
     
@@ -6,8 +6,8 @@ function makeParallelSets(data, states, years, variables, target) {
     
     var chart = d3.parsets()
         .dimensions(variables)
-        .width(1600)
-        .height(800);
+        .width(width)
+        .height(height);
                                                     
     var vis = target.append("svg")
         .attr("width", chart.width())
