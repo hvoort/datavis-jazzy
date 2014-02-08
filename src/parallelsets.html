@@ -15,7 +15,7 @@
                     .key(function(d) {return d.fips_state})
                     .key(function(d) {return d.year})
                     .entries(data);
-                makeParallelSets(groups, ["sd", "sd", "nd"], ["2008", "2012", "2012"], ["jazz", "classical", "books", "gender", "education", "employed"], d3.select("body"));
+                makeParallelSets(groups, ["sd", "sd", "nd"], ["2008", "2012", "2012"], ["jazz", "classical", "books", "gender", "education", "employed"], d3.select("body"), 500, 500);
             });
         </script>
     </body>

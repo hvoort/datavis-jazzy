@@ -1,7 +1,5 @@
-function makePie(data, year, variable, target) {
-    var width = 300,
-        height = 300,
-        radius = Math.min(width, height) / 2;
+function makePie(data, state, year, variable, target, width, height) {
+    var radius = Math.min(width, height) / 2;
         
     var color = d3.scale.category20();
     
@@ -19,8 +17,20 @@ function makePie(data, year, variable, target) {
         .append("g")
         .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
     
-    var temp = selectYear(data, year[0]);
-    var workingdata = computePercentages(temp, variable);
+    var temp;
+    data.forEach(function(s) {
+            if (s.key == state) {
+                s.values.forEach(function(y) {
+                    if (y.key == year) {
+                        temp = (d3.nest()
+                            .key(function(d) { return d[variable]; }).sortKeys(d3.ascending)
+                            .entries(y.values));
+                    }
+                });
+            }
+        });
+    
+    var workingdata = computePercentages(temp);
     
     var tooltip = target
         .append("div")
@@ -76,27 +86,14 @@ function makePie(data, year, variable, target) {
         .attr("d", arc)
         .each(function(d) { this._current = d; }); // store the initial angles
     
-    function computePercentages(data, variable) {
-        // nest by variable
-        var data2 = d3.nest()
-            .key(function(d) { return d[variable]; }).sortKeys(d3.ascending)
-            .entries(data);
-        
+    function computePercentages(data) {
         // compute percentages for each variable category
-        var total = d3.sum(data2, function(d) { return d.values.length; } );
-        data2.forEach(function(cat) {
+        var total = d3.sum(data, function(d) { return d.values.length; } );
+        data.forEach(function(cat) {
             cat.value = cat.values.length / total * 100;
         });
         
-        return data2;
-    }
-    
-    function selectState(data, state) {
-        return $.map(data, function (val) { if (val.key == state) return val; })[0].values;
-    }
-    
-    function selectYear(data, year) {
-        return $.map(data.values, function (val) { if (val.key == year) return val; })[0].values;
+        return data;
     }
 }
 

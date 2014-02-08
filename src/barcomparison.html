@@ -14,7 +14,7 @@
                     .key(function(d) {return d.fips_state})
                     .key(function(d) {return d.year})
                     .entries(data);
-                makeBarComparison(groups, ["sd", "sd", "nd", "nd"], ["2008", "2012", "2008", "2012"], "education", d3.select("body"));
+                makeBarComparison(groups, ["sd", "sd", "nd", "nd"], ["2008", "2012", "2008", "2012"], "education", d3.select("body"), 1000, 800);
             });
         </script>
     </body>
