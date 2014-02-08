@@ -113,7 +113,62 @@ var compare = function () {
             
         },
         showComparison = function (type, v) {
+            var $contEl = $("#compare_container"),
+                dh = $(document).height() - 40,
+                dw = $(document).width() / selected.length - 40,
+                min = Math.min(dw, dh),
+                grey = $("<div \>")
+                    .addClass("modal-backdrop fade in")
+                    .appendTo("body")
+                    .on("click", close);
+            
+            function close() {
+                $("#compare_container div.card").each(function () { $(this).remove(); });
+                grey.removeClass("in").addClass("out").remove();
+            }
+            
+            function createTarget() {
+                return $("<div>")
+                        .addClass("card")
+                        .css({
+                            "opacity": 0,
+                            "width": min + "px",
+                            "height": min + "px"
+                        })
+                        .appendTo($contEl)
+                        .animate({"opacity": 1}, 200);
+            }
+            
+            switch (type) {
+                case "ps":
+                case "bar":
+                    var $target = createTarget(),
+                        d3target = d3.select($target.node());
+                    
+                    // add chart to target
+                    // use selected[i].state && selected[i].years
+                    
+                    break;
+                case "pie":
+                    $.map(selected, function (select, i) {
+                        var $target = createTarget(),
+                            d3target = d3.select($target.node());
+                        
+                        // Add chart to target
+                        
+                        // use select.state && select.years
+                        
+                    }); 
+                    break;
+                    
+            }
             console.log("show comparison", type, v);
+            
+            
+            
+            $contEl.css("margin-left", selected.length * min / 2 + "px");
+            
+            
         },
         clickHandler = function(e, map, group, years) {
             var new_select = {

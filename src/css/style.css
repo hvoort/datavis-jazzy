@@ -96,7 +96,7 @@ label {
     z-index:1040;
 }
 
-#selected_container .card {
+.card {
     padding: 5px;
     background: steelblue;
     border-radius: 3px;
@@ -125,6 +125,17 @@ label {
 }
 #selected_container .card ul li span.spacer {
     width: 30px;
+}
+
+#compare_container {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    z-index: 1041;
+}
+
+#compare_container .card {
+    background: white;
 }
 
 .axis text {
