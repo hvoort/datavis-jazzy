@@ -68,9 +68,10 @@ var compare = function () {
             }
             
             // add values
-            varcard.find("select").append($.map(comparable, function (c) {
-                return "<option>" + ucfirst(c) + "</option>";
-            }).join(""))
+            if (varcard.find("option").length == 0) 
+                varcard.find("select").append($.map(comparable, function (c) {
+                    return "<option>" + ucfirst(c) + "</option>";
+                }).join(""))
             
             // reset values and handlers
             choicecard.find("input").each(function () {
@@ -166,6 +167,7 @@ var compare = function () {
                     // TODO v is een ARRAY variables
                     makeBarComparison(mergeddata, stateslist, yearslist, [v], $target, 500, 500)
                     
+                    $contEl.css("margin-left", parseInt(min / 2) + "px");
                     break;
                 case "pie":
                     $.map(selected, function (select, i) {
@@ -185,7 +187,6 @@ var compare = function () {
             
             
             $contEl.css("margin-left", selected.length * min / 2 + "px");
-            
             
         },
         clickHandler = function(e, map, group, years) {
