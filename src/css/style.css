@@ -130,7 +130,7 @@ label {
 #compare_container {
     position: absolute;
     top: 0px;
-    left: 0px;
+    left: 50%;
     z-index: 1041;
 }
 

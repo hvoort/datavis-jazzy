@@ -149,7 +149,7 @@ var compare = function () {
                     // add chart to target
                     // use selected[i].state && selected[i].years
                     
-                    $contEl.css("margin-left", parseInt(min / 2) + "px");
+                    $contEl.css("margin-left", -parseInt(min / 2) + "px");
                     break;
                 case "pie":
                     $.map(selected, function (select, i) {
@@ -161,7 +161,7 @@ var compare = function () {
                         // use select.state && select.years
                         
                     }); 
-                    $contEl.css("margin-left", parseInt(selected.length * min / 2) + "px");
+                    $contEl.css("margin-left", -parseInt(selected.length * min / 2) + "px");
                     break;
                     
             }
