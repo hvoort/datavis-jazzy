@@ -57,6 +57,11 @@ label {
     font-weight:normal;
 }
 
+
+.mapfilters.card {
+    margin:10px;
+}
+
 .map, .mapfilters {
     float: left;
     position: relative;
