@@ -32,8 +32,8 @@ var compare = function () {
         },
         compare = function () {
             var grey = $("<div \>")
-                    .addClass("modal-backdrop fade in")
                     .appendTo("body")
+                    .addClass("modal-backdrop fade in")
                     .on("click", close),
                 choicecard = $("#howtocomparecard")
                     .delay(600)
@@ -52,7 +52,7 @@ var compare = function () {
                     "bottom": 0,
                     "margin-left": 0
                 }, 200);
-                grey.removeClass("in").addClass("out").remove();
+                grey.removeClass("in").addClass("out").delay(200).remove();
             }
             
             function changeMargin(delay) {
@@ -115,9 +115,9 @@ var compare = function () {
         },
         showComparison = function (type, v) {
             var $contEl = $("#compare_container"),
-                dh = $(document).height() - 40,
-                dw = $(document).width() / selected.length - 40,
-                min = Math.min(dw, dh),
+                dh = $(document).height() - 50,
+                dw = $(document).width() / selected.length - 50,
+                min = Math.min(dw, dh) - 50,
                 grey = $("<div \>")
                     .addClass("modal-backdrop fade in")
                     .appendTo("body")
@@ -125,19 +125,23 @@ var compare = function () {
             
             function close() {
                 $("#compare_container div.card").each(function () { $(this).remove(); });
-                grey.removeClass("in").addClass("out").remove();
+                grey.removeClass("in").addClass("out").delay(200).remove();
             }
             
             function createTarget() {
-                return $("<div>")
-                        .addClass("card")
-                        .css({
-                            "opacity": 0,
-                            "width": min + "px",
-                            "height": min + "px"
-                        })
-                        .appendTo($contEl)
-                        .animate({"opacity": 1}, 200);
+                var content = $("<div \>")
+                        .addClass("cardcontent"),
+                    card = $("<div \>")
+                        .addClass("card");
+                
+                card.css({
+                    "opacity": 0,
+                    "width": min + "px",
+                    "height": min + "px"
+                }).appendTo($contEl)
+                .append(content)
+                .animate({"opacity": 1}, 200);
+                return content;
             }
             
             var mergeddata = [];
@@ -158,7 +162,7 @@ var compare = function () {
                     sel_cults.push(v);
                     
                     // TODO goede size kiezen
-                    makeParallelSets(mergeddata, stateslist, yearslist, sel_cults, d3target, 1000, 500);
+                    makeParallelSets(mergeddata, stateslist, yearslist, sel_cults, d3target, min, min);
                     break;
                     
                 case "bar":
@@ -166,9 +170,9 @@ var compare = function () {
                         d3target = d3.select($target.get(0));
                     
                     // TODO goede size kiezen
-                    makeBarComparison(mergeddata, stateslist, yearslist, v, d3target, 800, 500)
+                    makeBarComparison(mergeddata, stateslist, yearslist, v, d3target, min, min)
                     
-                    $contEl.css("margin-left", -parseInt(min / 2) + "px");
+                    $contEl.css("margin-left", -parseInt(min / 2 + 50) + "px");
                     break;
                 case "pie":
                     $.map(selected, function (select, i) {
@@ -176,12 +180,12 @@ var compare = function () {
                             d3target = d3.select($target.get(0));  
                         
                         // TODO goede size kiezen
-                        makePie(mergeddata, select.state.key, select.years[0], v, d3target, 250, 250);  
+                        makePie(mergeddata, select.state.key, select.years[0], v, d3target, min, min);  
                     }); 
-                    $contEl.css("margin-left", -parseInt(selected.length * min / 2) + "px");
-                    break;
-                    
+                    $contEl.css("margin-left", -parseInt(selected.length * (min + 50) / 2) + "px");
+                    break;                    
             }
+            $contEl.css("margin-top", (dh - (min + 50)) / 2 + "px");
             
             console.log("show comparison", type, v);
             

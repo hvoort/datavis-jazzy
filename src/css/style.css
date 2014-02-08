@@ -140,7 +140,11 @@ label {
 }
 
 #compare_container .card {
-    background: white;
+    background: lightgrey;
+    position: relative;
+}
+#compare_container .cardcontent {
+    margin 10px;
 }
 
 .axis text {
