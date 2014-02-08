@@ -22,8 +22,6 @@ function makePie(data, year, variable, target) {
     var temp = selectYear(data, year[0]);
     var workingdata = computePercentages(temp, variable);
     
-    console.log(workingdata);
-    
     var tooltip = target
         .append("div")
         .attr("class", "tooltip")
