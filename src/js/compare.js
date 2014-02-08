@@ -99,8 +99,8 @@ var compare = function () {
                     
                     // var select handler
                     gocard.find("button").unbind().on("click", function () {
-                        showComparison(type, sel.val().toLowerCase());
                         close();
+                        showComparison(type, sel.val().toLowerCase());
                     });
                 });
             });
@@ -160,7 +160,7 @@ var compare = function () {
                     
                 case "bar":
                     var $target = createTarget(),
-                        d3target = d3.select($target.node());
+                        d3target = d3.select($target.get(0));
                     
                     // TODO v is een ARRAY variables
                     makeBarComparison(mergeddata, stateslist, yearslist, [v], $target, 500, 500)
@@ -169,7 +169,7 @@ var compare = function () {
                 case "pie":
                     $.map(selected, function (select, i) {
                         var $target = createTarget(),
-                            d3target = d3.select($target.node());
+                            d3target = d3.select($target.get(0));
                         
                         makePie(mergeddata, select.state.key, select.years[0], v, $target, 250, 250);  
                     }); 
