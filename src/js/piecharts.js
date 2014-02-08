@@ -22,6 +22,8 @@ function makePie(data, year, variable, target) {
     var temp = selectYear(data, year[0]);
     var workingdata = computePercentages(temp, variable);
     
+    console.log(workingdata);
+    
     var tooltip = target
         .append("div")
         .attr("class", "tooltip")
@@ -62,9 +64,6 @@ function makePie(data, year, variable, target) {
         "left": $(svg.node()).position().left - width/2 + (width - $(description.node()).width())/2 + "px"
     };
     
-    console.log(width);
-    console.log($(description.node()).width());
-    
     $(description.node()).css(position);
     description.transition().duration(200).style("opacity", 1);
 
@@ -82,7 +81,7 @@ function makePie(data, year, variable, target) {
     function computePercentages(data, variable) {
         // nest by variable
         var data2 = d3.nest()
-            .key(function(d) { return d[variable]; })
+            .key(function(d) { return d[variable]; }).sortKeys(d3.ascending)
             .entries(data);
         
         // compute percentages for each variable category
