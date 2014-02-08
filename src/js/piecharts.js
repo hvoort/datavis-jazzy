@@ -66,6 +66,7 @@ function makePie(data, state, year, variable, target, width, height) {
             tooltip.transition().duration(500).style("opacity", 0);
         });
     
+    //TODO: fix position for multiple pies
     description.html(variable + " distribution in " + temp.name + " (" + year + ")");
     var position = {
         "top": $(svg.node()).position().top - height/2 - 20 + "px",
