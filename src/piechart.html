@@ -17,9 +17,8 @@
                     .key(function(d) {return d.fips_state})
                     .key(function(d) {return d.year})
                     .entries(data);
-                
-                var dat = $.map(groups, function (val) { if (val.key == "al") return val; })[0].values;
-            makePie(dat, ["2012"], "education");
+
+            makePie(groups, "al", "2012", "education", d3.select("body"));
             });
         </script>
     </body>
