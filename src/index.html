@@ -8,12 +8,8 @@
         <script src="js/usmapvis.js"></script>
         <script src="js/piecharts.js"></script>
         <script src="js/parallelsets.js"></script>
-        <script src="js/d3.parsets.js"></script>
-        <script type="text/javascript" src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
-        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
-        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css">
+        <script src="js/d3.parsets.js"></script>    
         <link href="css/d3.parsets.css" rel="stylesheet" type="text/css">
-        <script src="js/jquery-1.10.2.min.js"></script>
         <link rel="stylesheet" href="css/bootstrap.min.css">
         <link rel="stylesheet" href="css/bootstrap-theme.min.css">
         <link rel="stylesheet" href="css/style.css">
@@ -24,7 +20,36 @@
             <div id="timeline"></div>
         </div>
         <div id="selected_container">
-            <div id="selected"><p></p></div>
+            <div id="selected" class="card"><p></p></div>
+            <div id="howtocomparecard" class="card" style="opacity:0; display:none;">
+                <p>
+                    How to compare the crowd between the states?
+                    <div class="radio">
+                      <label>
+                        <input type="radio" name="howtocompare" id="howtocompare" value="donut">
+                        Pie Chart
+                      </label>
+                    </div>
+                    <div class="radio">
+                      <label>
+                        <input type="radio" name="howtocompare" id="howtocompare" value="ps">
+                        Parallel Sets
+                      </label>
+                    </div>
+                </p>
+            </div>
+            <div id="comparevarcard" class="card" style="opacity:0; display:none;">
+                <p>
+                    What to compare?
+                    <select class="form-control">
+                    </select>
+                </p>
+            </div>
+            <div id="comparegocard" class="card" style="opacity:0; display:none;">
+                <p>
+                    <button type="button" class="btn">Compare!</button>
+                </p>
+            </div>
         </div>
         <div id="map1" class="map">
         </div>
@@ -34,6 +59,19 @@
         </div>
         <div id="mapfilters" class="mapfilters"></div>
         <script>
+            function ucfirst (str) {
+              // From: http://phpjs.org/functions
+              // +   original by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+              // +   bugfixed by: Onno Marsman
+              // +   improved by: Brett Zamir (http://brett-zamir.me)
+              // *     example 1: ucfirst('kevin van zonneveld');
+              // *     returns 1: 'Kevin van zonneveld'
+              str += '';
+              var f = str.charAt(0).toUpperCase();
+              return f + str.substr(1);
+            }
+            
+            
             $(function () {
                 var mapconfig = {
                         width: 400,
@@ -59,6 +97,9 @@
                     culturalcbs = [];
                 
                     years = [2002, 2008, 2012];
+                
+                comparable.sort();
+                culturals.sort();
                 
                 /**
                 * TIMELINE
@@ -111,7 +152,7 @@
                     $("<label>")
                         .attr("for", "cb" + cultural)
                         .append(cb)
-                        .append("&nbsp;Select " + cultural)
+                        .append("&nbsp;Select " + ucfirst(cultural))
                         .appendTo($("#mapfilters"));
                 });
                 
@@ -124,23 +165,123 @@
                  */
                 
                 var compare = (function (num) {
-                    var $pEl = $("#selected p"),
+                    var $contEl = $("#selected_container"),
+                        $selEl = $contEl.find("#selected"),
+                        $pEl = $selEl.find("p"),
                         selected = [],
                         maps = [],
+                        selectToString = function (select) {
+                            var stat = select.state[select.map.getId()].mergedstats.toFixed(2);
+                            return "<b>" + select.state.name + "</b> (" + select.years.join(", ") + ") <span class=\"spacer\"></span><span>" + stat + "%</span>";
+                        },
+                        selectToLi = function (select) {
+                            return "<li>" + selectToString(select) + "</li>";
+                        },
                         render = function () {
+                            var o = "";
+                            $pEl.removeClass("pointer").unbind();
                             if (selected.length === 0) {
-                                $pEl.text("No states selected.");
+                                o += "Select states to compare.";
                             } else {
-                                $pEl.text("You selected: ");
-                                $pEl.append($.map(selected, function (select) {
-                                    return select.state.name;
-                                }).join(", ")).closest("#selected_container").animate({ "opacity": 1}, 200);
+                                o += "You selected: <ul>";
+                                o += $.map(selected, selectToLi).join("");
+                                o += "</ul>";
+                                $pEl.addClass("pointer")
+                                    .on("click", compare);
                             }
+                            $pEl.html(o);
+                            $contEl.animate({"opacity": 1}, 200);
+                        },
+                        compare = function () {
+                            var grey = $("<div \>")
+                                    .addClass("modal-backdrop fade in")
+                                    .appendTo("body")
+                                    .on("click", close),
+                                choicecard = $("#howtocomparecard")
+                                    .delay(600)
+                                    .show()
+                                    .animate({ "opacity": 1}, 200),
+                                varcard = $("#comparevarcard"),
+                                gocard = $("#comparegocard"),
+                                gohide = [gocard, varcard, choicecard];
+                            
+                            function close() {
+                                $.map(gohide, function (h) {
+                                    h.animate({"opacity": 0}, 200).hide();
+                                });   
+                                $contEl.animate({
+                                    "left": 0,
+                                    "bottom": 0,
+                                    "margin-left": 0
+                                }, 200);
+                                grey.removeClass("in").addClass("out").remove();
+                            }
+                            
+                            function changeMargin(delay) {
+                                var els = [choicecard, varcard, gocard],
+                                    marg = $.map(els, function (el) {
+                                        if (el.css("opacity") > 0) return - el.width() / 2;
+                                        else return 0;
+                                    }).reduce(function(a, b) { return a + b; }, 0) - (10 * (els.length - 1));
+                                
+                                $contEl.animate({
+                                    "margin-left": marg + "px"
+                                }, delay);
+                            }
+                            
+                            // add values
+                            varcard.find("select").append($.map(comparable, function (c) {
+                                return "<option>" + ucfirst(c) + "</option>";
+                            }).join(""))
+                            
+                            // reset values and handlers
+                            choicecard.find("input").each(function () {
+                                $(this).attr("checked", false);
+                                $(this).unbind().on("click", function () {
+                                    // reset values and handlers
+                                    var sel = varcard.find("select"),
+                                        go = varcard.find("select"),
+                                        type = $(this).val();
+                                    
+                                    if (type === "pc") sel.attr("multiple", true); 
+                                    else sel.attr("multiple", false); 
+                                    
+                                    // Show new card
+                                    if (varcard.css("opacity") > 0) {
+                                        varcard.animate({ "opacity": 0}, 100).animate({ "opacity": 1}, 100);
+                                        gocard.animate({ "opacity": 0}, 100).animate({ "opacity": 1}, 100);
+                                    }
+                                    else {
+                                        varcard.show().animate({ "opacity": 1}, 200);
+                                        gocard.show().animate({ "opacity": 1}, 200);
+                                    }
+                                    
+                                    
+                                    changeMargin(200);                                    
+                                    
+                                    // var select handler
+                                    gocard.find("button").unbind().on("click", function () {
+                                        showComparison(type, sel.val().toLowerCase());
+                                        close();
+                                    });
+                                });
+                            });
+                            
+                            $contEl.animate({
+                                    "left": "35%",
+                                    "bottom": "35%"
+                                }, 400);
+                            changeMargin(600);
+                            
+                        },
+                        showComparison = function (type, v) {
+                            console.log("show comparison", type, v);
                         },
                         clickHandler = function(e, map, group, years) {
                             var new_select = {
                                     state: group,
-                                    years: years
+                                    years: years,
+                                    map: map
                                 },
                                 new_selected = $.grep(selected, function (select) {
                                     return !selectedEquals(select, new_select);
@@ -163,8 +304,8 @@
                                 d3this.style("fill", "mediumseagreen");
                                 d3this.attr("selected", "selected");
                                 // TODO: selector for variable and new targets divs with text above pie
-                                makePie(new_select.state, new_select.years, "education", d3.select("body"));
-                                makeParallelSets(new_select.state, [], [], ["jazz", "education", "income", "gender"], d3.select("body"));
+//                                makePie(new_select.state, new_select.years, "education", d3.select("body"));
+//                                makeParallelSets(new_select.state, [], [], ["jazz", "education", "income", "gender"], d3.select("body"));
 
                             }
                             render();

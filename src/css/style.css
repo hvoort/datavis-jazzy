@@ -89,22 +89,40 @@ label {
 
 #selected_container {
     position:relative;
-    padding: 0 0 10px 10px;
     position:fixed;
     left:0px;
     bottom:0px;
     opacity:0;
+    z-index:1040;
 }
 
-#selected {
+#selected_container .card {
     padding: 5px;
     background: steelblue;
     border-radius: 3px;
     box-shadow: 2px 2px 10px #888;
     color: white;
-    font-size:0.8em;
+    font-size:0.8em;    
+    float:left;
+    margin:20px;
 }
 
-#selected p {
+#selected_container p {
     margin: 0;
+}
+
+#selected_container p.pointer {
+    cursor: pointer;
+}
+
+#selected_container .card ul {
+    margin-bottom: 0;
+    padding-left: 10px;
+    list-style: none;
+}
+#selected_container .card ul li span {
+    float:right;
+}
+#selected_container .card ul li span.spacer {
+    width: 30px;
 }
