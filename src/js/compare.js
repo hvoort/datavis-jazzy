@@ -72,6 +72,7 @@ var compare = function () {
                 varcard.find("select").append($.map(comparable, function (c) {
                     return "<option>" + ucfirst(c) + "</option>";
                 }).join(""))
+            varcard.find("option").first().attr("selected", true);
             
             // reset values and handlers
             choicecard.find("input").each(function () {
@@ -82,7 +83,7 @@ var compare = function () {
                         go = varcard.find("select"),
                         type = $(this).val();
                     
-                    if (type === "pc") sel.attr("multiple", true); 
+                    if (type === "ps") sel.attr("multiple", "multiple"); 
                     else sel.attr("multiple", false); 
                     
                     // Show new card
@@ -100,8 +101,14 @@ var compare = function () {
                     
                     // var select handler
                     gocard.find("button").unbind().on("click", function () {
+                        var val = sel.val();
+                        if ($.isArray(sel.val())) {
+                            val = $.map(val, function (v) { return v.toLowerCase(); });
+                        } else {
+                            val = val.toLowerCase(); 
+                        }
                         close();
-                        showComparison(type, sel.val().toLowerCase());
+                        showComparison(type,  val);
                     });
                 });
             });
@@ -117,7 +124,8 @@ var compare = function () {
             var $contEl = $("#compare_container"),
                 dh = $(document).height() - 50,
                 dw = $(document).width() / selected.length - 50,
-                min = Math.min(dw, dh) - 50,
+                minmultiple = Math.min(dw, dh) - 50,
+                min = Math.min($(document).width(), $(document).height()) - 50,
                 grey = $("<div \>")
                     .addClass("modal-backdrop fade in")
                     .appendTo("body")
@@ -128,7 +136,7 @@ var compare = function () {
                 grey.removeClass("in").addClass("out").delay(200).remove();
             }
             
-            function createTarget() {
+            function createTarget(size) {
                 var content = $("<div \>")
                         .addClass("cardcontent"),
                     card = $("<div \>")
@@ -136,8 +144,8 @@ var compare = function () {
                 
                 card.css({
                     "opacity": 0,
-                    "width": min + "px",
-                    "height": min + "px"
+                    "width": size + "px",
+                    "height": size + "px"
                 }).appendTo($contEl)
                 .append(content)
                 .animate({"opacity": 1}, 200);
@@ -154,41 +162,43 @@ var compare = function () {
             });
             switch (type) {
                 case "ps":
-                    var $target = createTarget(),
+                    var $target = createTarget(min),
                         d3target = d3.select($target.get(0));
                     
                     // TODO v is een ARRAY variables en die mergen met sel_cults
                     var sel_cults = $.map($(".mapfilters input[type='checkbox']:checked"), function (filter) { return $(filter).val(); });
-                    sel_cults.push(v);
+                    if ($.isArray(v)) $.extend(sel_cults, v);
+                    else $.extend(sel_cults, [v]);
                     
                     // TODO goede size kiezen
-                    makeParallelSets(mergeddata, stateslist, yearslist, sel_cults, d3target, min, min);
+                    makeParallelSets(mergeddata, stateslist, yearslist, sel_cults, d3target, min - 20, min - 20);
+                    
+                    $contEl.css("margin-left", -parseInt(min / 2 + 50) + "px");
+                    $contEl.css("margin-top", (dh - min) / 2 + "px");
                     break;
                     
                 case "bar":
-                    var $target = createTarget(),
+                    var $target = createTarget(min),
                         d3target = d3.select($target.get(0));
                     
                     // TODO goede size kiezen
-                    makeBarComparison(mergeddata, stateslist, yearslist, v, d3target, min, min)
+                    makeBarComparison(mergeddata, stateslist, yearslist, v, d3target, min-20, min-20)
                     
                     $contEl.css("margin-left", -parseInt(min / 2 + 50) + "px");
+                    $contEl.css("margin-top", (dh - (min + 50)) / 2 + "px");
                     break;
                 case "pie":
                     $.map(selected, function (select, i) {
-                        var $target = createTarget(),
+                        var $target = createTarget(minmultiple),
                             d3target = d3.select($target.get(0));  
                         
                         // TODO goede size kiezen
-                        makePie(mergeddata, select.state.key, select.years[0], v, d3target, min, min);  
+                        makePie(mergeddata, select.state.key, select.years[0], v, d3target, minmultiple-20, minmultiple-20);  
                     }); 
-                    $contEl.css("margin-left", -parseInt(selected.length * (min + 50) / 2) + "px");
+                    $contEl.css("margin-left", -parseInt(selected.length * (minmultiple + 50) / 2) + "px");
+                    $contEl.css("margin-top", (dh - (minmultiple + 50)) / 2 + "px");
                     break;                    
-            }
-            $contEl.css("margin-top", (dh - (min + 50)) / 2 + "px");
-            
-            console.log("show comparison", type, v);
-            
+            }            
         },
         clickHandler = function(e, map, group, years) {
             var new_select = {
