@@ -139,14 +139,31 @@ var compare = function () {
                         .animate({"opacity": 1}, 200);
             }
             
+            var mergeddata = [];
+            var stateslist = [];
+            var yearslist = [];
+            selected.forEach(function(select) {
+                mergeddata.push(select.state);
+                stateslist.push(select.state.key);
+                yearslist.push(select.years[0]);
+            });
+            
+            console.log(v);
+            
             switch (type) {
                 case "ps":
+                    var $target = createTarget(),
+                        d3target = d3.select($target.node());
+                    
+                    // TODO v is een ARRAY variables
+                    makeParallelSets(mergeddata, stateslist, yearslist, [v], $target, 1000, 1000)
+                    
                 case "bar":
                     var $target = createTarget(),
                         d3target = d3.select($target.node());
                     
-                    // add chart to target
-                    // use selected[i].state && selected[i].years
+                    // TODO v is een ARRAY variables
+                    makeBarComparison(mergeddata, stateslist, yearslist, [v], $target, 500, 500)
                     
                     break;
                 case "pie":
@@ -154,14 +171,12 @@ var compare = function () {
                         var $target = createTarget(),
                             d3target = d3.select($target.node());
                         
-                        // Add chart to target
-                        
-                        // use select.state && select.years
-                        
+                        makePie(mergeddata, select.state.key, select.years[0], v, $target, 250, 250);  
                     }); 
-                    break;
+                break;
                     
             }
+            
             console.log("show comparison", type, v);
             
             
