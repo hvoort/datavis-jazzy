@@ -147,13 +147,12 @@ var compare = function () {
                 stateslist.push(select.state.key);
                 yearslist.push(select.years[0]);
             });
-            
-            console.log(v);
-            
             switch (type) {
                 case "ps":
                     var $target = createTarget(),
                         d3target = d3.select($target.node());
+                    
+                    console.log($target);
                     
                     // TODO v is een ARRAY variables
                     makeParallelSets(mergeddata, stateslist, yearslist, [v], $target, 1000, 1000)
@@ -162,6 +161,8 @@ var compare = function () {
                     var $target = createTarget(),
                         d3target = d3.select($target.get(0));
                     
+                     console.log($target);
+                    
                     // TODO v is een ARRAY variables
                     makeBarComparison(mergeddata, stateslist, yearslist, [v], $target, 500, 500)
                     
@@ -169,7 +170,9 @@ var compare = function () {
                 case "pie":
                     $.map(selected, function (select, i) {
                         var $target = createTarget(),
-                            d3target = d3.select($target.get(0));
+                            d3target = d3.select($target.get(0));  
+                        
+                        console.log($target);
                         
                         makePie(mergeddata, select.state.key, select.years[0], v, $target, 250, 250);  
                     }); 

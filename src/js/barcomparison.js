@@ -57,7 +57,7 @@ function makeBarComparison(data, states, years, variable, target, w, h) {
     var svg = target.append("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
-      .append("svg:g")
+        .append("svg:g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
     
     svg.append("g")
