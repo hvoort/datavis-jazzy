@@ -1,4 +1,5 @@
 function makeBarComparison(data, states, years, variable, target) {
+    if(states.length != years.length) return console.error("states and years must be of equal length!");
     var data2 = [];
     
     for(var i = 0; i < states.length; i++) {

@@ -11,7 +11,11 @@
     <body>
         <script>
             d3.tsv("data/SPPA82-12-filtered.tsv", function(data) {
-                makeParallelSets(data, ["sd", "wy", "nd"], ["2008", "2012"], ["jazz", "classical", "books", "gender", "education", "employed"]);
+                var groups = d3.nest()
+                    .key(function(d) {return d.fips_state})
+                    .key(function(d) {return d.year})
+                    .entries(data);
+                makeParallelSets(groups, ["sd", "sd", "nd"], ["2008", "2012", "2012"], ["jazz", "classical", "books", "gender", "education", "employed"], d3.select("body"));
             });
         </script>
     </body>

@@ -1,4 +1,7 @@
 function makeParallelSets(data, states, years, variables, target) {
+    if(states.length != years.length) return console.error("states and years must be of equal length!");
+    if(variables.length == 0) return console.error("you must provide at least one variable!");
+    
     var culturals = ["jazz", "classical", "opera", "musical", "play", "ballet", "dance", "artmuseum", "park", "books"];
     
     var chart = d3.parsets()
@@ -10,30 +13,31 @@ function makeParallelSets(data, states, years, variables, target) {
         .attr("width", chart.width())
         .attr("height", chart.height());
     
+    console.log(data);
+    temp = [];
+    
+    for(var i = 0; i < states.length; i++) {
+        data.forEach(function(state) {
+            if (state.key == states[i]) {
+                state.values.forEach(function(year) {
+                    if (year.key == years[i]) {
+                        temp.push(year.values);
+                    }
+                });
+            }
+        })
+    }
+    
     var data2 = [];
-    data.values.forEach(function (value) {
-        $.merge(data2, value.values);
+    temp.forEach(function (value) {
+        $.merge(data2, value);
     });
-    
-    var filtered;
-    if(states.length > 0) {
-        filtered = data2.filter(function(d) { return states.indexOf(d.fips_state) != -1 });
-    }
-    filtered = filtered || data2;
-    if(years.length > 0) {
-        filtered = filtered.filter(function(d) { return years.indexOf(d.year) != -1 });
-    }
-    filtered = filtered || data2;
-    
-    if(variables.length == 0) {
-        return console.error("you must provide at least one variable!");
-    }
     
     variables.forEach(function(cat) {
         if(culturals.indexOf(cat) != -1) {
-            filtered = filtered.filter(function(d) { return d[cat] == "yes" || d[cat] == "no"; });
+            data2 = data2.filter(function(d) { return d[cat] == "yes" || d[cat] == "no"; });
         }
     });
     
-    vis.datum(filtered).call(chart);
+    vis.datum(data2).call(chart);
 }
