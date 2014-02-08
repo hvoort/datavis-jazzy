@@ -140,32 +140,50 @@ var compare = function () {
                         .animate({"opacity": 1}, 200);
             }
             
+            var mergeddata = [];
+            var stateslist = [];
+            var yearslist = [];
+            selected.forEach(function(select) {
+                mergeddata.push(select.state);
+                stateslist.push(select.state.key);
+                yearslist.push(select.years[0]);
+            });
             switch (type) {
                 case "ps":
+                    var $target = createTarget(),
+                        d3target = d3.select($target.node());
+                    
+                    console.log($target);
+                    
+                    // TODO v is een ARRAY variables
+                    makeParallelSets(mergeddata, stateslist, yearslist, [v], $target, 1000, 1000)
+                    
                 case "bar":
                     var $target = createTarget(),
                         d3target = d3.select($target.get(0));
                     
-                    // add chart to target
-                    // use selected[i].state && selected[i].years
+                     console.log($target);
+                    
+                    // TODO v is een ARRAY variables
+                    makeBarComparison(mergeddata, stateslist, yearslist, [v], $target, 500, 500)
                     
                     $contEl.css("margin-left", -parseInt(min / 2) + "px");
                     break;
                 case "pie":
                     $.map(selected, function (select, i) {
                         var $target = createTarget(),
-                            d3target = d3.select($target.get(0));
+                            d3target = d3.select($target.get(0));  
                         
-                        // Add chart to target
+                        console.log($target);
                         
-                        // use select.state && select.years
-                        
+                        makePie(mergeddata, select.state.key, select.years[0], v, $target, 250, 250);  
                     }); 
                     $contEl.css("margin-left", -parseInt(selected.length * min / 2) + "px");
                     break;
                     
             }
-            console.log("show comparison", type, v);    
+            
+            console.log("show comparison", type, v);
             
         },
         clickHandler = function(e, map, group, years) {
