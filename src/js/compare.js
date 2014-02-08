@@ -151,21 +151,22 @@ var compare = function () {
             switch (type) {
                 case "ps":
                     var $target = createTarget(),
-                        d3target = d3.select($target.node());
+                        d3target = d3.select($target.get(0));
                     
-                    console.log($target);
+                    // TODO v is een ARRAY variables en die mergen met sel_cults
+                    var sel_cults = $.map($(".mapfilters input[type='checkbox']:checked"), function (filter) { return $(filter).val(); });
+                    sel_cults.push(v);
                     
-                    // TODO v is een ARRAY variables
-                    makeParallelSets(mergeddata, stateslist, yearslist, [v], $target, 1000, 1000)
+                    // TODO goede size kiezen
+                    makeParallelSets(mergeddata, stateslist, yearslist, sel_cults, d3target, 1000, 500);
+                    break;
                     
                 case "bar":
                     var $target = createTarget(),
                         d3target = d3.select($target.get(0));
                     
-                     console.log($target);
-                    
-                    // TODO v is een ARRAY variables
-                    makeBarComparison(mergeddata, stateslist, yearslist, [v], $target, 500, 500)
+                    // TODO goede size kiezen
+                    makeBarComparison(mergeddata, stateslist, yearslist, v, d3target, 800, 500)
                     
                     $contEl.css("margin-left", -parseInt(min / 2) + "px");
                     break;
@@ -174,9 +175,8 @@ var compare = function () {
                         var $target = createTarget(),
                             d3target = d3.select($target.get(0));  
                         
-                        console.log($target);
-                        
-                        makePie(mergeddata, select.state.key, select.years[0], v, $target, 250, 250);  
+                        // TODO goede size kiezen
+                        makePie(mergeddata, select.state.key, select.years[0], v, d3target, 250, 250);  
                     }); 
                     $contEl.css("margin-left", -parseInt(selected.length * min / 2) + "px");
                     break;

@@ -11,7 +11,7 @@ function makePie(data, state, year, variable, target, width, height) {
         .innerRadius(radius - 100)
         .outerRadius(radius - 20);
     
-    var svg = d3.select("body").append("svg")
+    var svg = target.append("svg")
         .attr("width", width)
         .attr("height", height)
         .append("g")
@@ -22,15 +22,15 @@ function makePie(data, state, year, variable, target, width, height) {
             if (s.key == state) {
                 s.values.forEach(function(y) {
                     if (y.key == year) {
-                        temp = (d3.nest()
+                        temp = {"name": s.name, "values":(d3.nest()
                             .key(function(d) { return d[variable]; }).sortKeys(d3.ascending)
-                            .entries(y.values));
+                            .entries(y.values)) }
                     }
                 });
             }
         });
     
-    var workingdata = computePercentages(temp);
+    var workingdata = computePercentages(temp.values);
     
     var tooltip = target
         .append("div")
@@ -66,7 +66,8 @@ function makePie(data, state, year, variable, target, width, height) {
             tooltip.transition().duration(500).style("opacity", 0);
         });
     
-    description.html(variable + " distribution in " + data.name + " (" + year[0] + ")");
+    //TODO: fix position for multiple pies
+    description.html(variable + " distribution in " + temp.name + " (" + year + ")");
     var position = {
         "top": $(svg.node()).position().top - height/2 - 20 + "px",
         "left": $(svg.node()).position().left - width/2 + (width - $(description.node()).width())/2 + "px"
