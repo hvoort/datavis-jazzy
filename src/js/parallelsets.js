@@ -13,7 +13,6 @@ function makeParallelSets(data, states, years, variables, target, width, height)
         .attr("width", chart.width())
         .attr("height", chart.height());
     
-    console.log(data);
     temp = [];
     
     for(var i = 0; i < states.length; i++) {

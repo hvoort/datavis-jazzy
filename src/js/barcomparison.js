@@ -7,7 +7,7 @@ function makeBarComparison(data, states, years, variable, target, w, h) {
             if (state.key == states[i]) {
                 state.values.forEach(function(year) {
                     if (year.key == years[i]) {
-                        data2[i] = {"key": states[i] + " (" + years[i] + ")", "values": d3.nest()
+                        data2[i] = {"key": states[i], "name": state.name + " (" + years[i] + ")", "values": d3.nest()
                             .key(function(d) { return d[variable]; }).sortKeys(d3.ascending)
                             .entries(year.values) }
                         var total = d3.sum(data2[i].values, function(d) { return d.values.length; } );
@@ -90,8 +90,8 @@ function makeBarComparison(data, states, years, variable, target, w, h) {
         .attr("x", function(d) { return x0(d.key); })
         .attr("y", function(d) { return height - y(d.value); });
     
-        var div = target.append("div").style("border", "2px solid").style("padding-bottom", "10px").style("padding-left", "10px").style("width", "120px").style("height", states.length * 40 + 55 + "px");
-        div.append("h3").html("Legend");
+        var div = target.append("div").style("border", "2px solid").style("padding-bottom", "10px").style("padding-left", "10px").style("width", "200px").style("height", states.length * 40 + 55 + "px");
+        div.append("h3").html("Legend").style("color", "black");
         var legend = div.append("div")
                 .append("svg")
                 .append("g");
@@ -113,6 +113,6 @@ function makeBarComparison(data, states, years, variable, target, w, h) {
             .append("text")
             .attr("y", function(d,i) { return i*40 + 22.5; })
             .attr("x", 40)
-            .text(function(d) { return d.key });
+            .text(function(d) { return d.name });
 
 }
