@@ -90,13 +90,17 @@ function makeBarComparison(data, states, years, variable, target, w, h) {
         .attr("x", function(d) { return x0(d.key); })
         .attr("y", function(d) { return height - y(d.value); });
     
-        var div = target.append("div").style("border", "2px solid").style("padding-bottom", "10px").style("padding-left", "10px").style("width", "200px").style("height", states.length * 40 + 55 + "px");
+        var div = target.append("div").style({
+            "width": "200px",
+            "height": states.length * 40 + 60 + "px",
+            "position": "absolute",
+            "top": "-20px",
+            "left": "-240px"
+        }).attr("class","card").append("div").attr("class", "cardcontent");
         div.append("h3").html("Legend").style("color", "black");
         var legend = div.append("div")
                 .append("svg")
                 .append("g");
-    
-        legend.append("h1").html("Legend");
     
         legend.selectAll("div")
             .data(data2)
