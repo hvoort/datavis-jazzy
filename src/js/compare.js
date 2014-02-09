@@ -290,6 +290,7 @@ var compare = function () {
         };                    
     
     return {
-        setMaps: setMaps
+        setMaps: setMaps,
+        render: render
     };
 };

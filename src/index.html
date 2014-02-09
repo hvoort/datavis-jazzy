@@ -161,14 +161,24 @@
         /**
          * Create 'statistic' for every cultural, add to filter options
          */
+        var showStatistics = function () {
+            var selected = $("#mapfilters input[id^='cb']:checked").map(function () {
+                return $(this).val();
+            }).get();
+            map1.showStatistic(selected, ["" + years[0]], perc_tooltip);
+            map2.showStatistic(selected, ["" + years[1]], perc_tooltip);
+            map3.showStatistic(selected, ["" + years[2]], perc_tooltip);
+        };
+
         culturals.forEach(function (cultural) {
             usmapvis.createStatistic(cultural, generic_sum(cultural));
 
             var cb = $(document.createElement('input')).attr({
                 id: 'cb' + cultural,
                 value: cultural,
-                type: 'checkbox',
-                onclick: 'showStatistics()'
+                type: 'checkbox'
+            }).on("click", function () {
+                showStatistics();
             });
 
             culturalcbs.push(cb);
@@ -179,15 +189,7 @@
                     .appendTo($("#mapfilters"));
         });
 
-        function showStatistics() {
-            var selected = $("#mapfilters input[id^='cb']:checked").map(function () {
-                return $(this).val();
-            }).get();
-            map1.showStatistic(selected, ["" + years[0]], perc_tooltip);
-            map2.showStatistic(selected, ["" + years[1]], perc_tooltip);
-            map3.showStatistic(selected, ["" + years[2]], perc_tooltip);
-        }
-
+        
         // first is default selected
         $("#mapfilters input[id^='cb']:eq(0)").attr("checked", true);
         showStatistics();
@@ -197,6 +199,7 @@
          */
         var my_comp = compare();
         my_comp.setMaps([map1, map2, map3]);
+        my_comp.render();
 
         /**
          * Browser test
