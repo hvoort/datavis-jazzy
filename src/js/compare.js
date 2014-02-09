@@ -126,6 +126,8 @@ var compare = function () {
                 dw = $(window).width() / selected.length - 50,
                 minmultiple = Math.min(dw, dh) - 50,
                 min = Math.min($(document).width(), $(document).height()) - 50,
+                selWidth = $("#selected").outerWidth(),
+                widewidth = $(window).width() - selWidth - 50,
                 grey = $("<div \>")
                     .addClass("modal-backdrop fade in")
                     .appendTo("body")
@@ -136,16 +138,17 @@ var compare = function () {
                 grey.removeClass("in").addClass("out").delay(200).remove();
             }
             
-            function createTarget(size) {
-                var content = $("<div \>")
+            function createTarget(height, width) {
+                var width = (width === undefined ? height: width),
+                    content = $("<div \>")
                         .addClass("cardcontent"),
                     card = $("<div \>")
                         .addClass("card");
                 
                 card.css({
                     "opacity": 0,
-                    "width": size + "px",
-                    "height": size + "px"
+                    "width": width + "px",
+                    "height": height + "px"
                 }).appendTo($contEl)
                 .append(content)
                 .animate({"opacity": 1}, 200);
@@ -162,7 +165,7 @@ var compare = function () {
             });
             switch (type) {
                 case "ps":
-                    var $target = createTarget(min),
+                    var $target = createTarget(min, widewidth),
                         d3target = d3.select($target.get(0));
                     
                     var sel_cults = $.map($("#mapfilters input[type='checkbox']:checked"), function (filter) { return $(filter).val(); });
@@ -170,20 +173,24 @@ var compare = function () {
                     else $.merge(sel_cults, [v]);
                     
                     // TODO goede size kiezen
-                    makeParallelSets(mergeddata, stateslist, yearslist, sel_cults, d3target, min - 20, min - 20);
+                    makeParallelSets(mergeddata, stateslist, yearslist, sel_cults, d3target, widewidth - 25, min - 25);
                     
-                    $contEl.css("margin-left", -parseInt(min / 2 + 50) + "px");
-                    $contEl.css("margin-top", (dh - min) / 2 + "px");
+                    $contEl.css({
+                        "margin-top": (dh - min) / 2 + "px",
+                        "margin-left": "0px",
+                        "left": "inherit",
+                        "right": "0"
+                    });
                     break;
                     
                 case "bar":
-                    var $target = createTarget(min),
+                    var $target = createTarget(min, widewidth),
                         d3target = d3.select($target.get(0));
                     
                     // TODO goede size kiezen
-                    makeBarComparison(mergeddata, stateslist, yearslist, v, d3target, min-20, min-20)
+                    makeBarComparison(mergeddata, stateslist, yearslist, v, d3target, widewidth - 25, min-25)
                     
-                    $contEl.css("margin-left", -parseInt(min / 2 + 50) + "px");
+                    $contEl.css("margin-left", -parseInt((widewidth - selWidth) / 2 + 85) + "px");
                     $contEl.css("margin-top", (dh - min) / 2 + "px");
                     break;
                 case "pie":
