@@ -1,7 +1,22 @@
 function makePie(data, state, year, variable, target, width, height) {
     var radius = Math.min(width, height) / 2;
+    
+    // nest by category to find all categories in all selected state/year data
+    var data2 = [];
+    data.forEach(function (value) {
+        value.values.forEach(function (vals) {
+            $.merge(data2, vals.values);
+        });
+    });
+    var catnest = d3.nest()
+        .key(function(d) { return d[variable]; })
+        .entries(data2);
+    var cats = [];
+    catnest.forEach(function(cat) {
+        cats.push(cat.key);
+    });
         
-    var color = d3.scale.category20();
+    var color = d3.scale.category20().domain(cats);
     
     var pie = d3.layout.pie()
         .value(function(d) { return d.value; })
@@ -48,7 +63,7 @@ function makePie(data, state, year, variable, target, width, height) {
         .data(pie(workingdata))
         .enter()
         .append("path")
-        .attr("fill", function(d, i) { return color(i); })
+        .attr("fill", function(d, i) { return color(d.data.key); })
         .on('mouseover', function(d) {
             var position = {
                 "top": $(svg.node()).position().top + d3.mouse(this)[1]+width/2 + "px",
@@ -83,7 +98,7 @@ function makePie(data, state, year, variable, target, width, height) {
 
     path.transition()
         .duration(500)
-        .attr("fill", function(d, i) { return color(i); })
+        .attr("fill", function(d, i) { return color(d.data.key); })
         .attr("d", arc)
         .each(function(d) { this._current = d; }); // store the initial angles
     
