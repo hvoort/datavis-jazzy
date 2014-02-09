@@ -2,6 +2,7 @@ function makePie(data, state, year, variable, target, width, height) {
     var radius = Math.min(width, height) / 2;
     
     // nest by category to find all categories in all selected state/year data
+    // this is necessary to provide a consistent coloring over multiple pie charts
     var data2 = [];
     data.forEach(function (value) {
         value.values.forEach(function (vals) {
@@ -16,6 +17,7 @@ function makePie(data, state, year, variable, target, width, height) {
         cats.push(cat.key);
     });
         
+    // set the color picker and match it to the domain of all categories determined above
     var color = d3.scale.category20().domain(cats);
     
     var pie = d3.layout.pie()
@@ -32,6 +34,7 @@ function makePie(data, state, year, variable, target, width, height) {
         .append("g")
         .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
     
+    // selects the data for the correct state/year tuple and nests by variable
     var temp;
     data.forEach(function(s) {
             if (s.key == state) {
@@ -59,11 +62,13 @@ function makePie(data, state, year, variable, target, width, height) {
     
     var jq_tooltip = $(tooltip.node());
     
+    
     var path = svg.selectAll("path")
         .data(pie(workingdata))
         .enter()
         .append("path")
         .attr("fill", function(d, i) { return color(d.data.key); })
+        // add a tooltip to the pie charts
         .on('mouseover', function(d) {
             var position = {
                 "top": $(svg.node()).position().top + d3.mouse(this)[1]+width/2 + "px",
@@ -81,16 +86,16 @@ function makePie(data, state, year, variable, target, width, height) {
             tooltip.transition().duration(500).style("opacity", 0);
         });
     
-    //TODO: fix position for multiple pies
+    // add a div with a description of the pie chart data
     description.html(variable + " distribution in " + temp.name + " (" + year + ")");
     var position = {
         "top": $(svg.node()).position().top - height/2 - 20 + "px",
         "left": $(svg.node()).position().left - width/2 + (width - $(description.node()).width())/2 + "px"
     };
-    
     $(description.node()).css(position);
     description.transition().duration(200).style("opacity", 1);
 
+    // shows a smooth transition when the pie data change, we dont use this though
     function change(data) {
         path = path.data(pie(data)); // compute the new angles
         path.transition().duration(750).attrTween("d", arcTween); // redraw the arcs
@@ -102,6 +107,7 @@ function makePie(data, state, year, variable, target, width, height) {
         .attr("d", arc)
         .each(function(d) { this._current = d; }); // store the initial angles
     
+    // function to set the value of the objects to the percentage of persons that fall in that category
     function computePercentages(data) {
         // compute percentages for each variable category
         var total = d3.sum(data, function(d) { return d.values.length; } );
@@ -111,6 +117,8 @@ function makePie(data, state, year, variable, target, width, height) {
         
         return data;
     }
+    
+    
 }
 
 function arcTween(a) {
