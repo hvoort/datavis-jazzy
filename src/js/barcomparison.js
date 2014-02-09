@@ -20,6 +20,13 @@ function makeBarComparison(data, states, years, variable, target, w, h) {
         })
     }
     
+    var max = 0;
+    data2.forEach(function(state) {
+        state.values.forEach(function (cat) {
+            if (cat.value > max) max = cat.value;
+        })
+    });
+    
     var n = states.length;
     var m = data2[0].values.length;
     
@@ -28,7 +35,7 @@ function makeBarComparison(data, states, years, variable, target, w, h) {
         height = h - margin.top - margin.bottom;
     
     var y = d3.scale.linear()
-        .domain([0, 100])
+        .domain([0, max])
         .range([height-20, 0]);
     
     var xlabels = [];
