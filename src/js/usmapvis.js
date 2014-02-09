@@ -23,6 +23,7 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
         }); 
         
         // Get raw data
+        loading.startFor(29589923);
         d3.tsv("data/SPPA82-12-filtered.tsv", function(data) {
             // groups all data by state
             var groups = d3.nest()
@@ -35,7 +36,10 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                 group.name = id_name_map[short_name_id_map[group.key.toUpperCase()]].name;
             });
             
+            loading.hide();
             data_dfd.resolve(groups);
+        }).on("progress", function () { 
+            loading.update(d3.event.loaded);
         });
     }()),
         

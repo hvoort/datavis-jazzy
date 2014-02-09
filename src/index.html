@@ -3,8 +3,9 @@
 <html>
     <head>
         <script src="js/d3.v3.min.js"></script>
-        <script src="js/topojson.v1.min.js"></script>
         <script src="js/jquery-1.11.0.min.js"></script>
+        <script src="js/topojson.v1.min.js"></script>
+        <script src="js/loading.js"></script>    
         <script src="js/usmapvis.js"></script>
         <script src="js/piecharts.js"></script>
         <script src="js/parallelsets.js"></script>
@@ -172,6 +173,7 @@
                 });
                 
                 // Default show
+                $("#mapfilters input[id^='cb']:eq(0)").attr("checked", true);
                 showStatistics();
                 
                 // Create comparable
