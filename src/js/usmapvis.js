@@ -1,3 +1,10 @@
+/**
+ * Load the required data
+ * Create (US)map functionality
+ *
+ * @type {usmapvis|*}
+ */
+
 var usmapvis = usmapvis || (function ($, d3, undefined) {
     /*
     * Default map settings
@@ -12,7 +19,10 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
     id_name_map = { 0: null },                
     short_name_id_map = { 0: null },
     data_dfd = $.Deferred(),
-        
+
+    /**
+     * Initialize data load
+     */
     init_data = (function () {
         // Get us state names and codes
         d3.tsv("data/us-state-names.tsv", function(error, names) {

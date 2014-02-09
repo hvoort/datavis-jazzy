@@ -8,13 +8,26 @@ var compare = function () {
         $pEl = $selEl.find("p"),
         selected = [],
         maps = [],
+        /**
+         * ToString for (selected) state
+         * @param select
+         * @returns {string}
+         */
         selectToString = function (select) {
             var stat = select.state[select.map.getId()].mergedstats.toFixed(2);
             return "<b>" + select.state.name + "</b> (" + select.years.join(", ") + ") <span class=\"spacer\"></span><span>" + stat + "%</span>";
         },
+        /**
+         * creates li for selected state
+         * @param select
+         * @returns {string}
+         */
         selectToLi = function (select) {
             return "<li>" + selectToString(select) + "</li>";
         },
+        /**
+         * (re)render the selected states
+         */
         render = function () {
             var o = "";
             $pEl.removeClass("pointer").unbind();
@@ -30,6 +43,9 @@ var compare = function () {
             $pEl.html(o);
             $contEl.animate({"opacity": 1}, 200);
         },
+        /**
+         * Prepare Comparison of the selected states, show form
+         */
         compare = function () {
             var grey = $("<div \>")
                     .appendTo("body")
@@ -44,8 +60,11 @@ var compare = function () {
                 gohide = [gocard, varcard, choicecard];
             
             
-            $pEl.unbind().removeClass("pointer");            
-            
+            $pEl.unbind().removeClass("pointer");
+
+            /**
+             * Close comparison form
+             */
             function close() {
                 $.map(gohide, function (h) {
                     h.animate({"opacity": 0}, 200).hide();
@@ -124,6 +143,11 @@ var compare = function () {
             changeMargin(600);
             
         },
+        /**
+         * Show the selected comparison
+         * @param type Compare Type (chart)
+         * @param v Value (property to compare)
+         */
         showComparison = function (type, v) {
             var $contEl = $("#compare_container"),
                 dh = $(window).height() - 50,
@@ -216,6 +240,13 @@ var compare = function () {
                     break;                    
             }            
         },
+        /**
+         * When a state is clicked in a map
+         * @param e
+         * @param map
+         * @param group
+         * @param years
+         */
         clickHandler = function(e, map, group, years) {
             var new_select = {
                     state: group,
@@ -246,6 +277,10 @@ var compare = function () {
                         $(s1.years).not(s2.years).length == 0 && 
                         $(s2.years).not(s1.years).length == 0)
         },
+        /**
+         * Add the maps which could be compared
+         * @param {Array} maps_in Array of maps
+         */
         setMaps = function (maps_in) {
             $.extend(maps, maps_in);
             
