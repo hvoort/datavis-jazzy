@@ -86,8 +86,8 @@
                 var dh = $(window).height(),
                     dw = $(window).width(),
                     numMaps = 3,
-                    mapwidth = (dw - 220 - numMaps*20) / numMaps - 1,
-                    mapheight = Math.min(dh - 60 - 20, mapwidth),
+                    mapwidth = (dw - 220 - 15 - numMaps*20) / numMaps - 1, // -mapfilters -scrollbar -mapMargins ... -1 for float
+                    mapheight = Math.min(dh - 60 - 20, mapwidth), // -timiline - mapMargins 
                     mapconfig = {
                         width: mapwidth,
                         height: mapheight
