@@ -24,7 +24,7 @@ We have created an app that allows for interactive visualizations that facilitat
 6. The lower left corner shows the selected states
 7. Click on this list to open up a selection form where you can select chart types and other variables for detailed comparison 
 
-## Implementation details
+## Resources
 
 For this app we used [data](http://arts.gov/publications/additional-materials-related-to-2012-sppa) from the US Government for a Visualisation Challenge. We used [Bootstrap](http://www.getbootstrap.com) for basic styling and [jQuery](http:www.jquery.com) for basic dom manipulation. [D3js](http://www.d3js.org) is used for visualisation in svg object in javascript. 
 
