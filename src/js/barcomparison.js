@@ -29,7 +29,7 @@ function makeBarComparison(data, states, years, variable, target, w, h) {
     
     var y = d3.scale.linear()
         .domain([0, 100])
-        .range([height, 0]);
+        .range([height-20, 0]);
     
     var xlabels = [];
     for(var i = 0; i < data2[0].values.length; i++) {
@@ -66,8 +66,13 @@ function makeBarComparison(data, states, years, variable, target, w, h) {
     
     svg.append("g")
         .attr("class", "x axis")
-        .attr("transform", "translate(0," + height + ")")
-        .call(xAxis);
+        .attr("transform", "translate(0," + (height-20) + ")")
+        .call(xAxis)
+        .selectAll("text")
+        .style("text-anchor", "start")
+        .attr("transform", function(d) {
+                return "rotate(15)" 
+                });
     
     function test(dataz) {
         var res = [];
@@ -86,9 +91,9 @@ function makeBarComparison(data, states, years, variable, target, w, h) {
         .data(function(d,i) { return d.values; })
       .enter().append("rect")
         .attr("width", x1.rangeBand())
-        .attr("height", function(d) { return y(d.value); })
+        .attr("height", function(d) { return height - 20 - y(d.value); })
         .attr("x", function(d) { return x0(d.key); })
-        .attr("y", function(d) { return height - y(d.value); });
+        .attr("y", function(d) { return y(d.value); });
     
         var div = target.append("div").style({
             "width": "200px",
