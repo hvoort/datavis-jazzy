@@ -2,6 +2,7 @@ function makeBarComparison(data, states, years, variable, target, w, h) {
     if(states.length != years.length) return console.error("states and years must be of equal length!");
     var data2 = [];
     
+    // select the provided states and years from the data and introduce a nesting by the selected variable
     for(var i = 0; i < states.length; i++) {
         data.forEach(function(state) {
             if (state.key == states[i]) {
@@ -20,6 +21,7 @@ function makeBarComparison(data, states, years, variable, target, w, h) {
         })
     }
     
+    // find the highest percentual value in the data
     var max = 0;
     data2.forEach(function(state) {
         state.values.forEach(function (cat) {
@@ -34,6 +36,7 @@ function makeBarComparison(data, states, years, variable, target, w, h) {
         width = w - margin.left - margin.right,
         height = h - margin.top - margin.bottom;
     
+    // range of the y-axis goes to the maximum value
     var y = d3.scale.linear()
         .domain([0, max])
         .range([height-20, 0]);
@@ -47,8 +50,9 @@ function makeBarComparison(data, states, years, variable, target, w, h) {
         .domain(xlabels)
         .rangeBands([0, width], .2);
     
+    // this determines the translation for each state,year tuple
     var x1 = d3.scale.ordinal()
-        .domain(d3.range(m))
+        .domain(d3.range(n))
         .rangeBands([0, x0.rangeBand()]);
     
     var z = d3.scale.category10();
@@ -71,6 +75,7 @@ function makeBarComparison(data, states, years, variable, target, w, h) {
         .attr("class", "y axis")
         .call(yAxis);
     
+    // position and rotate the x-labels so they are readable for longer labels
     svg.append("g")
         .attr("class", "x axis")
         .attr("transform", "translate(0," + (height-20) + ")")
@@ -105,17 +110,20 @@ function makeBarComparison(data, states, years, variable, target, w, h) {
             
     svg.append("g").selectAll("g")
         .data(data2)
-      .enter().append("g")
+      .enter().append("g") 
+        // translate the bars for each state,year tuple 
         .style("fill", function(d, i) { return z(i); })
         .attr("transform", function(d, i) { return "translate(" + x1(i) + ",0)"; })
       .selectAll("rect")
         .data(function(d,i) { return d.values; })
       .enter().append("rect")
+        // draw the bars for each category of the state,year tuple
         .attr("width", x1.rangeBand())
         .attr("height", function(d) { return height - 20 - y(d.value); })
         .attr("x", function(d) { return x0(d.key); })
         .attr("y", function(d) { return y(d.value); });
     
+        // draw a legend
         var div = target.append("div").style({
             "width": "200px",
             "height": states.length * 40 + 60 + "px",
