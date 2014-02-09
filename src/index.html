@@ -1,186 +1,210 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 <html>
-    <head>
-        <script src="js/d3.v3.min.js"></script>
-        <script src="js/jquery-1.11.0.min.js"></script>
-        <script src="js/topojson.v1.min.js"></script>
-        <script src="js/loading.js"></script>    
-        <script src="js/usmapvis.js"></script>
-        <script src="js/piecharts.js"></script>
-        <script src="js/parallelsets.js"></script>
-        <script src="js/d3.parsets.js"></script> 
-        <script src="js/barcomparison.js"></script>    
-        <script src="js/compare.js"></script>    
-        <link href="css/d3.parsets.css" rel="stylesheet" type="text/css">
-        <link rel="stylesheet" href="css/bootstrap.min.css">
-        <link rel="stylesheet" href="css/bootstrap-theme.min.css">
-        <link rel="stylesheet" href="css/style.css">
-    </head>
-    <body>
-        <div id="pietooltip" class="tooltip" style="display:none;"></div>
-        <div id="timeline_container">
-            <div id="timeline"></div>
+<head>
+    <script src="js/d3.v3.min.js"></script>
+    <script src="js/jquery-1.11.0.min.js"></script>
+    <script src="js/topojson.v1.min.js"></script>
+    <script src="js/loading.js"></script>
+    <script src="js/usmapvis.js"></script>
+    <script src="js/piecharts.js"></script>
+    <script src="js/parallelsets.js"></script>
+    <script src="js/d3.parsets.js"></script>
+    <script src="js/barcomparison.js"></script>
+    <script src="js/compare.js"></script>
+    <script src="js/jquery.browser.min.js"></script>
+    <link href="css/d3.parsets.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="pietooltip" class="tooltip" style="display:none;"></div>
+<div id="timeline_container">
+    <div id="timeline"></div>
+</div>
+<div id="selected_container">
+    <div id="selected" class="card"><p></p></div>
+    <div id="howtocomparecard" class="card" style="opacity:0; display:none;">
+        <p>
+            How to compare the crowd between the states?
+
+        <div class="radio">
+            <label>
+                <input type="radio" name="howtocompare" id="howtocompare" value="pie">
+                Pie Charts
+            </label>
         </div>
-        <div id="selected_container">
-            <div id="selected" class="card"><p></p></div>
-            <div id="howtocomparecard" class="card" style="opacity:0; display:none;">
-                <p>
-                    How to compare the crowd between the states?
-                    <div class="radio">
-                      <label>
-                        <input type="radio" name="howtocompare" id="howtocompare" value="pie">
-                        Pie Charts
-                      </label>
-                    </div>
-                    <div class="radio">
-                      <label>
-                        <input type="radio" name="howtocompare" id="howtocompare" value="bar">
-                        Bar Chart
-                      </label>
-                    </div>
-                    <div class="radio">
-                      <label>
-                        <input type="radio" name="howtocompare" id="howtocompare" value="ps">
-                        Parallel Sets
-                      </label>
-                    </div>
-                </p>
-            </div>
-            <div id="comparevarcard" class="card" style="opacity:0; display:none;">
-                <p>
-                    What to compare?
-                    <select class="form-control">
-                    </select>
-                </p>
-            </div>
-            <div id="comparegocard" class="card" style="opacity:0; display:none;">
-                <p>
-                    <button type="button" class="btn">Compare!</button>
-                </p>
-            </div>
+        <div class="radio">
+            <label>
+                <input type="radio" name="howtocompare" id="howtocompare" value="bar">
+                Bar Chart
+            </label>
         </div>
-        <div id="compare_container">
+        <div class="radio">
+            <label>
+                <input type="radio" name="howtocompare" id="howtocompare" value="ps">
+                Parallel Sets
+            </label>
         </div>
-        <div id="map1" class="map">
-        </div>
-        <div id="map2" class="map">
-        </div>
-        <div id="map3" class="map">
-        </div>
-        <div id="mapfilters" class="mapfilters card"></div>
-        <script>
-            function ucfirst (str) {
-              // From: http://phpjs.org/functions
-              // +   original by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
-              // +   bugfixed by: Onno Marsman
-              // +   improved by: Brett Zamir (http://brett-zamir.me)
-              // *     example 1: ucfirst('kevin van zonneveld');
-              // *     returns 1: 'Kevin van zonneveld'
-              str += '';
-              var f = str.charAt(0).toUpperCase();
-              return f + str.substr(1);
-            }
-            
-            
-            $(function () {
-                var dh = $(window).height(),
-                    dw = $(window).width(),
-                    numMaps = 3,
-                    mapwidth = (dw - 220 - 15 - numMaps*20) / numMaps - 1, // -mapfilters -scrollbar -mapMargins ... -1 for float
-                    mapheight = Math.min(dh - 60 - 20, mapwidth), // -timiline - mapMargins 
-                    mapconfig = {
-                        width: mapwidth,
-                        height: mapheight
-                    };
-                    map1 = usmapvis.createMap(d3.select("#map1"), mapconfig),
-                    map2 = usmapvis.createMap(d3.select("#map2"), mapconfig),
-                    map3 = usmapvis.createMap(d3.select("#map3"), mapconfig),
-                    
-                    generic_sum = function (prop) {
-                       return function (group) {
-                           return d3.sum(group.values, function(d) { 
-                               if (d[prop] == "yes") { return 1; } 
-                               else { return 0; } 
-                            }) / group.values.length * 100
-                        };
-                    },
-                    perc_tooltip = function(group, val) {
-                        return group.name + "<br/>" + val.toFixed(2) + "%";
-                    },
-                    culturals = ["jazz", "classical", "opera", "musical", "play", "ballet", "dance", "artmuseum", "park", "books"],
-                    comparable = ["income", "marital", "gender", "education", "race", "employed", "agegroup", "mother_educ", "father_educ"],
-                    culturalcbs = [];
-                
-                    years = [2002, 2008, 2012];
-                
-                comparable.sort();
-                culturals.sort();
-                
-                /**
-                * TIMELINE
-                */
-                $("#timeline_container").css("width", mapconfig.width * 3 + 60 + "px");
-                $.map(years, function (year) {
-                    var $timeline = $("#timeline"),
-                        $timeline_container = $("#timeline_container"),
-                        min = Math.min.apply(null, years),
-                        max = Math.max.apply(null, years),
-                        span = max - min,
-                        spanwidth = $timeline.width(),
-                        spanpadding = 100,
-                        position = Math.round(((year - min) / span) * (spanwidth - 2 * spanpadding)),
-                        $div = $("<div />");
-                    
-                    $div.addClass("tooltip") // styling
-                        .text(year)
-                        .appendTo($timeline_container)
-                        .css({
-                            "top": "40px",
-                            "left": $timeline.offset().left + position + spanpadding - $div.width() + "px"
-                        });
+        </p>
+    </div>
+    <div id="comparevarcard" class="card" style="opacity:0; display:none;">
+        <p>
+            What to compare?
+            <select class="form-control">
+            </select>
+        </p>
+    </div>
+    <div id="comparegocard" class="card" style="opacity:0; display:none;">
+        <p>
+            <button type="button" class="btn">Compare!</button>
+        </p>
+    </div>
+</div>
+<div id="compare_container"></div>
+<div id="map1" class="map"></div>
+<div id="map2" class="map"></div>
+<div id="map3" class="map"></div>
+<div id="mapfilters" class="mapfilters card"></div>
+<script>
+    /**
+     * Make first letter uppercase
+     */
+    function ucfirst(str) {
+        // From: http://phpjs.org/functions
+        str += '';
+        var f = str.charAt(0).toUpperCase();
+        return f + str.substr(1);
+    }
+
+
+    $(function () {
+        /**
+         * Initialize general variables
+         */
+        var dh = $(window).height(),
+            dw = $(window).width(),
+            numMaps = 3,
+            mapwidth = (dw - 220 - 15 - numMaps * 20) / numMaps - 1, // -mapfilters -scrollbar -mapMargins ... -1 for float
+            mapheight = Math.min(dh - 60 - 20, mapwidth), // -timiline - mapMargins
+            mapconfig = {
+                width: mapwidth,
+                height: mapheight
+            };
+            map1 = usmapvis.createMap(d3.select("#map1"), mapconfig),
+            map2 = usmapvis.createMap(d3.select("#map2"), mapconfig),
+            map3 = usmapvis.createMap(d3.select("#map3"), mapconfig),
+
+            /**
+             * Calculates the sum for the given property
+             *  @returns function that calculates sum for specified property
+             **/
+            generic_sum = function (prop) {
+                return function (group) {
+                    return d3.sum(group.values, function (d) {
+                        if (d[prop] == "yes") {
+                            return 1;
+                        }
+                        else {
+                            return 0;
+                        }
+                    }) / group.values.length * 100
+                };
+            },
+            /**
+             *  toString for percentages
+             *  @returns String
+             **/
+            perc_tooltip = function (group, val) {
+                return group.name + "<br/>" + val.toFixed(2) + "%";
+            },
+            culturals = ["jazz", "classical", "opera", "musical", "play", "ballet", "dance", "artmuseum", "park", "books"],
+            comparable = ["income", "marital", "gender", "education", "race", "employed", "agegroup", "mother_educ", "father_educ"],
+            culturalcbs = [],
+            years = [2002, 2008, 2012];
+
+        comparable.sort();
+        culturals.sort();
+
+        /**
+         * Draw Timeline above maps
+         */
+        $("#timeline_container").css("width", mapconfig.width * 3 + 60 + "px");
+        $.map(years, function (year) {
+            var $timeline = $("#timeline"),
+                $timeline_container = $("#timeline_container"),
+                min = Math.min.apply(null, years),
+                max = Math.max.apply(null, years),
+                span = max - min,
+                spanwidth = $timeline.width(),
+                spanpadding = 100,
+                position = Math.round(((year - min) / span) * (spanwidth - 2 * spanpadding)),
+                $div = $("<div />");
+
+            $div.addClass("tooltip") // styling
+                .text(year)
+                .appendTo($timeline_container)
+                .css({
+                    "top": "40px",
+                    "left": $timeline.offset().left + position + spanpadding - $div.width() + "px"
                 });
-                
-                map1.linkMaps([map2, map3]);
-                map2.linkMaps([map1, map3]);
-                map3.linkMaps([map1, map2]);                
-                
-                showStatistics = function() {
-                    var selected = $("#mapfilters input[id^='cb']:checked").map(function(){
-                      return $(this).val();
-                    }).get();
-                    map1.showStatistic(selected, ["" + years[0]], perc_tooltip);
-                    map2.showStatistic(selected, ["" + years[1]], perc_tooltip);
-                    map3.showStatistic(selected, ["" + years[2]], perc_tooltip);
-                }
-                
-                culturals.forEach(function(cultural) {
-                    usmapvis.createStatistic(cultural, generic_sum(cultural));
-                    
-                    var cb = $(document.createElement('input')).attr({
-                        id: 'cb' + cultural,
-                        value: cultural,
-                        type: 'checkbox',
-                        onclick: 'showStatistics()'
-                        });
-                    
-                    culturalcbs.push(cb);
-                    $("<label>")
-                        .attr("for", "cb" + cultural)
-                        .append(cb)
-                        .append("&nbsp;Select " + ucfirst(cultural))
-                        .appendTo($("#mapfilters"));
-                });
-                
-                // Default show
-                $("#mapfilters input[id^='cb']:eq(0)").attr("checked", true);
-                showStatistics();
-                
-                // Create comparable
-                var my_comp = compare();
-                my_comp.setMaps([map1, map2, map3]);
+        });
+
+        /**
+         * Link Maps
+         */
+        map1.linkMaps([map2, map3]);
+        map2.linkMaps([map1, map3]);
+        map3.linkMaps([map1, map2]);
+
+        /**
+         * Create 'statistic' for every cultural, add to filter options
+         */
+        culturals.forEach(function (cultural) {
+            usmapvis.createStatistic(cultural, generic_sum(cultural));
+
+            var cb = $(document.createElement('input')).attr({
+                id: 'cb' + cultural,
+                value: cultural,
+                type: 'checkbox',
+                onclick: 'showStatistics()'
             });
-            
-        </script>
-    </body>
+
+            culturalcbs.push(cb);
+            $("<label>")
+                    .attr("for", "cb" + cultural)
+                    .append(cb)
+                    .append("&nbsp;Select " + ucfirst(cultural))
+                    .appendTo($("#mapfilters"));
+        });
+
+        function showStatistics() {
+            var selected = $("#mapfilters input[id^='cb']:checked").map(function () {
+                return $(this).val();
+            }).get();
+            map1.showStatistic(selected, ["" + years[0]], perc_tooltip);
+            map2.showStatistic(selected, ["" + years[1]], perc_tooltip);
+            map3.showStatistic(selected, ["" + years[2]], perc_tooltip);
+        }
+
+        // first is default selected
+        $("#mapfilters input[id^='cb']:eq(0)").attr("checked", true);
+        showStatistics();
+
+        /**
+         * Compare (selected) states; detailed data
+         */
+        var my_comp = compare();
+        my_comp.setMaps([map1, map2, map3]);
+
+        /**
+         * Browser test
+         */
+        if ($.browser.chrome !== true)
+            alert("This website is tested in Chrome. We do not guarantee a working version in other browsers.");
+    });
+
+</script>
+</body>
 </html>
