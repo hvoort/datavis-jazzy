@@ -21,7 +21,7 @@ var compare = function () {
             if (selected.length === 0) {
                 o += "Select states to compare.";
             } else {
-                o += "You selected: <ul>";
+                o += "Click to compare the details: <ul>";
                 o += $.map(selected, selectToLi).join("");
                 o += "</ul>";
                 $pEl.addClass("pointer")
