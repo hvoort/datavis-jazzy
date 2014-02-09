@@ -1,6 +1,6 @@
 function makeParallelSets(data, states, years, variables, target, width, height) {
     if(states.length != years.length) return console.error("states and years must be of equal length!");
-    if(variables.length == 0) return console.error("you must provide at least one variable!");
+    if(variables.length < 2) return console.error("you must provide at least two variables!");
     
     var culturals = ["jazz", "classical", "opera", "musical", "play", "ballet", "dance", "artmuseum", "park", "books"];
     
