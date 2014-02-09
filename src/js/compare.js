@@ -165,10 +165,9 @@ var compare = function () {
                     var $target = createTarget(min),
                         d3target = d3.select($target.get(0));
                     
-                    // TODO v is een ARRAY variables en die mergen met sel_cults
-                    var sel_cults = $.map($(".mapfilters input[type='checkbox']:checked"), function (filter) { return $(filter).val(); });
-                    if ($.isArray(v)) $.extend(sel_cults, v);
-                    else $.extend(sel_cults, [v]);
+                    var sel_cults = $.map($("#mapfilters input[type='checkbox']:checked"), function (filter) { return $(filter).val(); });
+                    if ($.isArray(v)) $.merge(sel_cults, v);
+                    else $.merge(sel_cults, [v]);
                     
                     // TODO goede size kiezen
                     makeParallelSets(mergeddata, stateslist, yearslist, sel_cults, d3target, min - 20, min - 20);
