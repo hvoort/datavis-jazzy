@@ -122,8 +122,8 @@ var compare = function () {
         },
         showComparison = function (type, v) {
             var $contEl = $("#compare_container"),
-                dh = $(document).height() - 50,
-                dw = $(document).width() / selected.length - 50,
+                dh = $(window).height() - 50,
+                dw = $(window).width() / selected.length - 50,
                 minmultiple = Math.min(dw, dh) - 50,
                 min = Math.min($(document).width(), $(document).height()) - 50,
                 grey = $("<div \>")

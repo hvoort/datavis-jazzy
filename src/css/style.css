@@ -66,6 +66,7 @@ label {
 
 .mapfilters.card {
     margin:10px;
+    width: 200px;
 }
 
 .map, .mapfilters {

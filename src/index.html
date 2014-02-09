@@ -83,9 +83,14 @@
             
             
             $(function () {
-                var mapconfig = {
-                        width: 400,
-                        height: 300
+                var dh = $(window).height(),
+                    dw = $(window).width(),
+                    numMaps = 3,
+                    mapwidth = (dw - 220 - 15 - numMaps*20) / numMaps - 1, // -mapfilters -scrollbar -mapMargins ... -1 for float
+                    mapheight = Math.min(dh - 60 - 20, mapwidth), // -timiline - mapMargins 
+                    mapconfig = {
+                        width: mapwidth,
+                        height: mapheight
                     };
                     map1 = usmapvis.createMap(d3.select("#map1"), mapconfig),
                     map2 = usmapvis.createMap(d3.select("#map2"), mapconfig),
@@ -167,7 +172,6 @@
                 });
                 
                 // Default show
-                $("#mapfilters input[id^='cb']:eq(0)").attr("checked", true);
                 showStatistics();
                 
                 // Create comparable

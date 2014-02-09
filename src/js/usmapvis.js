@@ -64,8 +64,8 @@ var usmapvis = usmapvis || (function ($, d3, undefined) {
                 centered,
             
                 projection = d3.geo.albersUsa()
-                    .scale(opts.width)
-                    .translate([opts.width / 2, opts.height / 2 + 20]),
+                    .scale(opts.width + 100)
+                    .translate([opts.width / 2, opts.height / 2 - 10   ]),
 
                 path = d3.geo.path()
                     .projection(projection),
