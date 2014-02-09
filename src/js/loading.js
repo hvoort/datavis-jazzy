@@ -60,6 +60,7 @@ var loading = loading || (function ($, d3, undefined) {
     return {
         startFor: function (size) {
             init_dfd.done(function () {
+                $(svg.node()).parent().show();
                 total = size;
                 grey = $("<div \>")
                     .addClass("modal-backdrop fade")
@@ -73,6 +74,7 @@ var loading = loading || (function ($, d3, undefined) {
             init_dfd.done(function () {
                 meter.transition().delay(250).attr("transform", "scale(0)");
                 grey.removeClass("in").addClass("out").delay(200).remove();
+                $(svg.node()).parent().hide();
             });
         }
     };
