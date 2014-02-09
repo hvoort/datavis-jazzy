@@ -81,6 +81,20 @@ function makeBarComparison(data, states, years, variable, target, w, h) {
                 return "rotate(15)" 
                 });
     
+    var description = target
+        .append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0);
+    
+    description.html(variable + " distribution");
+    var position = {
+        "top": "-15px",
+        "left": w/2 - 50 + "px"
+    };
+    
+    $(description.node()).css(position);
+    description.transition().duration(200).style("opacity", 1);
+    
     function test(dataz) {
         var res = [];
         dataz.forEach(function(dat) {
