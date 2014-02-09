@@ -43,6 +43,9 @@ var compare = function () {
                 gocard = $("#comparegocard"),
                 gohide = [gocard, varcard, choicecard];
             
+            
+            $pEl.unbind().removeClass("pointer");            
+            
             function close() {
                 $.map(gohide, function (h) {
                     h.animate({"opacity": 0}, 200).hide();
@@ -53,6 +56,7 @@ var compare = function () {
                     "margin-left": 0
                 }, 200);
                 grey.removeClass("in").addClass("out").delay(200).remove();
+                $pEl.addClass("pointer").on("click", compare);
             }
             
             function changeMargin(delay) {
@@ -133,9 +137,15 @@ var compare = function () {
                     .appendTo("body")
                     .on("click", close);
             
+            $pEl.unbind().on("click", function () {
+                close();
+                $(this).trigger("click");
+            });  
+            
             function close() {
                 $("#compare_container div.card").each(function () { $(this).remove(); });
                 grey.removeClass("in").addClass("out").delay(200).remove();
+                $pEl.unbind().on("click", compare);
             }
             
             function createTarget(height, width) {
