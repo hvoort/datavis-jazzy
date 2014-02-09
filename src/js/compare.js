@@ -184,7 +184,7 @@ var compare = function () {
                     makeBarComparison(mergeddata, stateslist, yearslist, v, d3target, min-20, min-20)
                     
                     $contEl.css("margin-left", -parseInt(min / 2 + 50) + "px");
-                    $contEl.css("margin-top", (dh - (min + 50)) / 2 + "px");
+                    $contEl.css("margin-top", (dh - min) / 2 + "px");
                     break;
                 case "pie":
                     $.map(selected, function (select, i) {
@@ -214,21 +214,13 @@ var compare = function () {
             // unselected
             if (selected.length !== new_selected.length) {
                 selected = new_selected;
-                // remove pie
                 d3this.attr("selected", "");
-                
             }
             // selected
             else {
-                selected.push(new_select);                                
-                
-                // add pie
+                selected.push(new_select);       
                 d3this.style("fill", "mediumseagreen");
                 d3this.attr("selected", "selected");
-                // TODO: selector for variable and new targets divs with text above pie
-//                                makePie(new_select.state, new_select.years, "education", d3.select("body"));
-//                                makeParallelSets(new_select.state, [], [], ["jazz", "education", "income", "gender"], d3.select("body"));
-
             }
             render();
         },
